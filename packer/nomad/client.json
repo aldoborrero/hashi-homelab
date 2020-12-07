@@ -5,7 +5,7 @@
     "proxmox_password": "{{env `PROXMOX_PASSWORD`}}",
     "proxmox_host_node": "{{env `PROXMOX_HOST_NODE`}}",
     "proxmox_vm_id": "1000",
-    "proxmox_template_name": "nomad-ubuntu-20.04-tpl",
+    "proxmox_template_name": "nomad-client-ubuntu-20.04-tpl",
     "iso_filename": "Proxmox:iso/ubuntu-20.04-minimal-amd64.iso",
     "cores": "4",
     "sockets": "1",
@@ -21,6 +21,7 @@
     {
       "type": "proxmox",
       "proxmox_url": "{{user `proxmox_url`}}",
+      "node": "{{user `proxmox_host_node`}}",
       "insecure_skip_tls_verify": true,
       "username": "{{user `proxmox_username`}}",
       "password": "{{user `proxmox_password`}}",
@@ -29,7 +30,6 @@
       "vm_name": "{{user `proxmox_template_name`}}",
       "template_name": "{{ user `proxmox_template_name` }}",
 
-      "node": "{{user `proxmox_host_node`}}",
       "iso_file": "{{user `iso_filename`}}",
       "unmount_iso": true,
       "qemu_agent": true,
@@ -80,13 +80,18 @@
     {
       "type": "file",
       "pause_before": "20s",
-      "source": "./configs/provisioner.sh",
-      "destination": "/tmp/provisioner.sh"
+      "source": "./provisioners/",
+      "destination": "/tmp/"
     },
     {
       "type": "shell",
       "inline_shebang": "/bin/bash -e",
       "inline": ["/bin/bash /tmp/provisioner.sh"]
+    },
+    {
+      "type": "shell",
+      "inline_shebang": "/bin/bash -e",
+      "inline": ["/bin/bash /tmp/client.sh"]
     }
   ],
   "post-processors": [

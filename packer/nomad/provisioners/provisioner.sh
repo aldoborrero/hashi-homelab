@@ -15,7 +15,7 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubun
 sudo apt update
 sudo apt install -y docker-ce
 
-# --- Add Consul
+# Add Consul
 sudo wget https://releases.hashicorp.com/consul/${CONSUL_VERSION}/consul_${CONSUL_VERSION}_linux_amd64.zip -O /tmp/consul.zip
 sudo unzip /tmp/consul.zip -d /tmp
 sudo chmod +x /tmp/consul
@@ -23,7 +23,7 @@ sudo mv /tmp/consul /usr/local/bin
 sudo mkdir -p /var/consul /etc/consul
 sudo cp /tmp/configs/etc/consul/* /etc/consul/
 
-# --- Add Nomad
+# Add Nomad
 sudo wget https://releases.hashicorp.com/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip -O /tmp/nomad.zip
 sudo unzip /tmp/nomad.zip -d /tmp
 sudo chmod +x /tmp/nomad
@@ -31,7 +31,7 @@ sudo mv /tmp/nomad /usr/local/bin
 sudo mkdir -p /var/nomad /etc/nomad
 sudo cp /tmp/configs/etc/nomad/* /etc/nomad/
 
-# --- Add Vault
+# Add Vault
 sudo wget https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip -O /tmp/vault.zip
 sudo unzip /tmp/vault.zip -d /tmp
 sudo chmod +x /tmp/vault
@@ -39,7 +39,7 @@ sudo mv /tmp/vault /usr/local/bin
 sudo mkdir -p /var/vault /etc/vault
 sudo cp /tmp/configs/etc/vault/* /etc/vault/
 
-# --- Add CoreDNS
+# Add CoreDNS
 sudo wget https://github.com/coredns/coredns/releases/download/v${COREDNS_VERSION}/coredns_${COREDNS_VERSION}_linux_amd64.tgz -O /tmp/coredns.tgz
 sudo tar -xvvf /tmp/coredns.tgz --directory /tmp
 sudo chmod +x /tmp/coredns
