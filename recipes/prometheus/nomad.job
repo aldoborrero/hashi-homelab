@@ -1,0 +1,124 @@
+job "prometheus" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.prometheus.node ]]"
+  }
+
+  update {
+    stagger      = "20s"
+    max_parallel = 1
+  }
+
+  group "prometheus" {
+    count = 1
+
+    task "prometheus" {
+      driver = "docker"
+
+      config {
+        image = "prom/prometheus"
+        network_mode = "host"
+        args = [
+          "--config.file", "/local/prometheus.yml",
+          "--storage.tsdb.path", "/data",
+          "--web.listen-address", "0.0.0.0:9090"
+          ]
+        force_pull = true
+        network_mode = "host"
+        volumes = [
+          "[[ .app.prometheus.data ]]:/data",
+        ]
+        mounts = []
+      }
+
+      user = 1000
+
+      service {
+        name = "prometheus"
+        port = "http"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+        ]
+        check {
+          type     = "http"
+          path     = "/-/healthy"
+          name     = "http"
+          interval = "5s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 400
+        memory = 4096
+        network {
+          port "http" { static = 9090 }
+        }
+      }
+
+      template {
+        data = <<EOH
+global:
+  scrape_interval: 60s
+  scrape_timeout: 10s
+  evaluation_interval: 60s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets:
+        - "192.168.1.14:9090"
+
+  - job_name: "server-stats"
+    static_configs:
+      - targets:
+        - "192.168.1.14:9100"
+        - "192.168.1.15:9100"
+        - "192.168.1.16:9100"
+
+  - job_name: "besu"
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets:
+        - "192.168.1.14:9545"
+
+  - job_name: "coredns"
+    static_configs:
+      - targets:
+        - "192.168.1.15:9153"
+
+  - job_name: "pihole"
+    static_configs:
+      - targets:
+        - "192.168.1.15"
+
+  - job_name: "turbogeth"
+    static_configs:
+      - targets:
+        - "192.168.1.14:6060"
+EOH
+
+        destination   = "local/prometheus.yml"
+        change_mode   = "signal"
+        change_signal = "SIGHUP"
+        env           = false
+      }
+    }
+  }
+}

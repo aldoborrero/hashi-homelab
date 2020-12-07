@@ -1,0 +1,51 @@
+job "aleth" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  group "aleth" {
+    count = 1
+
+    task "aleth" {
+      driver = "docker"
+      config {
+        image        = "alethio/ethereum-lite-explorer:v1.0.0-beta.10"
+        force_pull   = "false"
+        port_map { http = 80 }
+      }
+
+      env {
+        PUID = 1000
+        PGID = 1000
+        APP_NODE_URL="http://192.168.1.14:8545"
+      }
+
+      service {
+        port = "http"
+        name = "aleth"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+        ]
+        check {
+          type     = "tcp"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 256
+        network {
+          port "http" { static = 8181 }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,67 @@
+job "sabnzbd" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.sabnzbd.node ]]"
+  }
+
+  group "sabnzbd" {
+    count = 1
+
+    task "sabnzbd" {
+      driver = "docker"
+
+      config {
+        image        = "linuxserver/sabnzbd:3.1.1-ls5"
+        force_pull   = "false"
+        network_mode = "host"
+        volumes = [
+          "[[ .app.sabnzbd.config ]]:/config",
+          "[[ .app.sabnzbd.downloads ]]:/downloads",
+          "[[ .app.sabnzbd.incompleteDownloads ]]:/incomplete-downloads"
+        ]
+      }
+
+      env {
+        PUID = 1000
+        PGID = 1000
+      }
+
+      service {
+        port = "http"
+        name = "${NOMAD_TASK_NAME}"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 1024
+        network {
+          port "http" { static = 8080 }
+        }
+      }
+    }
+  }
+}

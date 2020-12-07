@@ -1,0 +1,100 @@
+{
+  "variables": {
+    "proxmox_url": "https://{{env `PROXMOX_HOST`}}:8006/api2/json",
+    "proxmox_username": "root@pam",
+    "proxmox_password": "{{env `PROXMOX_PASSWORD`}}",
+    "proxmox_host_node": "proxmox",
+    "proxmox_vm_id": "1000",
+    "proxmox_template_name": "nomad-ubuntu-20.04-tpl",
+    "iso_filename": "Proxmox:iso/ubuntu-20.04-minimal-amd64.iso",
+    "cores": "1",
+    "memory": "1024",
+    "ssh_username": "packer",
+    "ssh_password": "packer"
+  },
+  "sensitive-variables": [
+    "proxmox_password",
+    "ssh_password"
+  ],
+  "builders": [
+    {
+      "type": "proxmox",
+      "proxmox_url": "{{user `proxmox_url`}}",
+      "insecure_skip_tls_verify": true,
+      "username": "{{user `proxmox_username`}}",
+      "password": "{{user `proxmox_password`}}",
+
+      "vm_id": "{{user `proxmox_vm_id`}}",
+      "vm_name": "{{user `proxmox_template_name`}}",
+      "template_name": "{{ user `proxmox_template_name` }}",
+
+      "node": "{{user `proxmox_host_node`}}",
+      "iso_file": "{{user `iso_filename`}}",
+      "unmount_iso": true,
+      "qemu_agent": true,
+
+      "cores": "{{user `cores`}}",
+      "memory": "{{user `memory`}}",
+      "network_adapters": [
+        {
+          "model": "virtio",
+          "bridge": "vmbr0"
+        }
+      ],
+      "disks": [
+        {
+          "type": "scsi",
+          "disk_size": "32G",
+          "storage_pool": "local",
+          "storage_pool_type": "directory",
+          "format": "qcow2"
+        }
+      ],
+
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_password": "{{user `ssh_password`}}",
+      "ssh_timeout": "15m",
+
+      "http_directory": "http",
+      "boot_wait": "10s",
+      "boot_command": [
+        "<esc><wait>",
+        "install",
+        " initrd=initrd.gz",
+        " auto=true",
+        " priority=critical",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu_20.04.preseed.cfg",
+        " --- <wait>",
+        "<enter><wait>"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "pause_before": "20s",
+      "source": "./configs/provisioner.sh",
+      "destination": "/tmp/provisioner.sh"
+    },
+    {
+      "type": "shell",
+      "inline_shebang": "/bin/bash -e",
+      "inline": ["/bin/bash /tmp/provisioner.sh"]
+    },
+    {
+      "type": "file",
+      "source": "./configs/etc/",
+      "destination": "/etc/"
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "shell-local",
+      "inline_shebang": "/bin/bash -e",
+      "inline": [
+        "qm set {{user `proxmox_vm_id`}} --scsihw virtio-scsi-pci",
+        "qm set {{user `proxmox_vm_id`}} --boot c --bootdisk scsi0"
+      ]
+    }
+  ]
+}

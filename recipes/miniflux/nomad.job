@@ -1,0 +1,58 @@
+job "miniflux" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  group "miniflux" {
+    count = 1
+
+    task "miniflux" {
+      driver = "docker"
+
+      config {
+        image        = "miniflux/miniflux:2.0.23"
+        force_pull   = "false"
+        network_mode = "host"
+        volumes = []
+      }
+
+      env {
+        DATABASE_URL = "postgresql://miniflux:miniflux@postgres.service.consul/miniflux?sslmode=disable"
+        BASE_URL = "https://miniflux.home"
+      }
+
+      service {
+        port = "http"
+        name = "miniflux"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 256
+        network {
+          port "http" { static = 8585 }
+        }
+      }
+    }
+  }
+}

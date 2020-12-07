@@ -1,0 +1,48 @@
+job "mikrotik-exporter" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  group "networking" {
+    count = 1
+
+    task "mikrotik-exporter" {
+      driver = "docker"
+
+      config {
+        image        = "nshttpd/mikrotik-exporter:1.0.12-DEVEL"
+        network_mode = "host"
+      }
+
+      env {
+        DEVICE = "router"
+        ADDRESS = "192.168.1.1"
+        USER = "prometheus"
+        PASSWORD = "changeme"
+      }
+
+      service {
+        port = "http"
+        name = "mikrotik-exporter"
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+        network {
+          port "http" { static = "9436" }
+        }
+      }
+    }
+  }
+}

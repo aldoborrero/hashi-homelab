@@ -1,0 +1,106 @@
+region: home
+datacenter: dc1
+tld: .home
+
+app:
+  alertmanager:
+    node: nomad-3
+
+  bazarr:
+    node: nomad-3
+    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/bazarr
+    downloads: /mnt/media/downloads
+    movies: /mnt/media/movies
+    tv: /mnt/media/tv-shows
+
+  besu:
+    node: nomad-1
+    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/besu/mainnet
+
+  bitwarden:
+    data: /mnt/services/bitwarden
+
+  emby:
+    node: nomad-2
+    root: /mnt/media/
+    config: /mnt/disks/093f9866-e36b-4525-931b-a380aba98a6a/emby
+    transcode: /mnt/disks/093f9866-e36b-4525-931b-a380aba98a6a/emby/transcode
+
+  guacamole:
+    node: nomad-3
+    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/guacamole
+
+  grafana:
+    node: nomad-1
+    config: /mnt/services/grafana
+    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/grafana
+
+  heimdall:
+    config: /mnt/services/heimdall
+
+  jackett:
+    config: /mnt/services/jackett
+
+  lazylibrarian:
+    config: /mnt/services/lazylibrarian
+    downloads: /mnt/media/downloads
+    books: /mnt/media/books
+
+  mylar:
+    config: /mnt/services/mylar
+    downloads: /mnt/media/downloads
+
+  nzbget:
+    node: nomad-2
+    config: /mnt/services/nzbget
+    downloads: /mnt/media/downloads
+
+  nzbhydra2:
+    config: /mnt/services/nzbhydra2
+    watch: /mnt/media/watch
+
+  pihole:
+    node: nomad-3
+    config: /mnt/services/pihole
+
+  plex:
+    node: nomad-3
+    root: /mnt/media/
+    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/plex
+    transcode: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/plex/transcode
+
+  postgres:
+    node: nomad-1
+    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/postgres
+
+  prometheus:
+    node: nomad-1
+    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/prometheus
+
+  radarr:
+    node: nomad-3
+    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/radarr
+    downloads: /mnt/media/downloads
+    movies: /mnt/media/movies
+
+  sabnzbd:
+    node: nomad-2
+    config: /mnt/services/sabnzbd
+    downloads: /mnt/media/downloads
+    incompleteDownloads: /mnt/disks/093f9866-e36b-4525-931b-a380aba98a6a/incomplete-downloads
+
+  sonarr:
+    node: nomad-3
+    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/sonarr
+    downloads: /mnt/media/downloads
+    tv: /mnt/media/tv-shows
+
+  transmission:
+    config: /mnt/services/transmission
+    watch: /mnt/media/watch
+    downloads: /mnt/media/downloads
+    incompleteDownloads: "/mnt/media/incomplete-downloads"
+
+  traefik:
+    dynamic: /mnt/services/traefik/dynamic
+    certificates: /mnt/services/traefik/certificates

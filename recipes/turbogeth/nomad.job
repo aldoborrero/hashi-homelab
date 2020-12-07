@@ -1,0 +1,70 @@
+job "turbogeth" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+  priority    = 100
+
+  meta {
+    version = "1"
+  }
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.turbogeth.node ]]"
+  }
+
+  update {
+    stagger      = "10s"
+    max_parallel = 1
+  }
+
+  group "turbogeth" {
+    count = 1
+
+    reschedule {
+      delay          = "120s"
+      delay_function = "constant"
+      unlimited      = true
+    }
+
+    task "turbogeth" {
+      driver = "docker"
+
+      config {
+        image = "matterlabs/turbo-geth:latest"
+        args = [
+          "tg",
+          "--metrics",
+          "--metrics.addr=0.0.0.0",
+          "--metrics.port=6060",
+          "--private.api.addr=0.0.0.0:9191"
+        ]
+        force_pull   = "true"
+        network_mode = "host"
+        volumes = [
+          "[[ .app.turbogeth.data ]]:/root/.local/share/turbogeth",
+        ]
+      }
+
+      service {
+        port = "p2p"
+        name = "turbogeth"
+        check {
+          type     = "tcp"
+          port     = "p2p"
+          interval = "30s"
+          timeout  = "250s"
+        }
+      }
+
+      resources {
+        cpu    = 2048
+        memory = 8192
+        network {
+          port "p2p" { static = 30303 }
+          port "metrics" { static = 6060 }
+        }
+      }
+    }
+  }
+}

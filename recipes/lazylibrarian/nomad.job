@@ -1,0 +1,62 @@
+job "lazylibrarian" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  group "lazylibrarian" {
+    count = 1
+
+    task "lazylibrarian" {
+      driver = "docker"
+
+      config {
+        image        = "linuxserver/lazylibrarian"
+        force_pull   = "false"
+        network_mode = "host"
+        volumes = [
+          "[[ .app.lazylibrarian.config ]]:/config",
+          "[[ .app.lazylibrarian.downloads ]]:/downloads",
+          "[[ .app.lazylibrarian.books ]]:/books",
+        ]
+      }
+
+      env {
+        PUID = 1000
+        PGID = 1000
+      }
+
+      service {
+        port = "http"
+        name = "lazylibrarian"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+        network {
+          port "http" { static = 5299 }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,89 @@
+job "besu" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+  priority    = 100
+
+  meta {
+    version = "1"
+  }
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.besu.node ]]"
+  }
+
+  group "besu" {
+    count = 0
+
+    reschedule {
+      delay          = "120s"
+      delay_function = "constant"
+      unlimited      = true
+    }
+
+    task "besu" {
+      driver = "docker"
+
+      config {
+        image        = "hyperledger/besu:1.5.5-graalvm"
+        force_pull   = "false"
+        network_mode = "host"
+        volumes = [
+          "[[ .app.besu.data ]]:/opt/besu/database",
+        ]
+      }
+
+      env {
+        PUID = 1000
+        PGID = 1000
+        BESU_NETWORK = "MAINNET"
+        BESU_SYNC_MODE = "FULL"
+        BESU_LOGGING = "INFO"
+        BESU_HOST_ALLOWLIST = "*"
+        BESU_P2P_ENABLED = "true"
+        BESU_RPC_HTTP_ENABLED = "true"
+        BESU_RPC_HTTP_HOST = "0.0.0.0"
+        BESU_RPC_HTTP_CORS_ORIGINS="*"
+        BESU_RPC_WS_ENABLED = "true"
+        BESU_RPC_HTTP_API = "eth,net,web3,admin,debug"
+        BESU_METRICS_ENABLED = "true"
+        BESU_METRICS_HOST = "127.0.0.1"
+        BESU_METRICS_PORT = "9545"
+        BESU_METRICS_PROMETHEUS_JOB = "besu"
+      }
+
+      service {
+        port = "rpc"
+        name = "besu"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+        ]
+        check {
+          type     = "tcp"
+          port     = "p2p"
+          interval = "30s"
+          timeout  = "250s"
+        }
+      }
+
+      resources {
+        cpu    = 2048
+        memory = 8192
+        network {
+          port "p2p" { static = 30303 }
+          port "rpc" { static = 8545 }
+          port "rpc_ws" { static = 8546 }
+          port "rpc_gql" { static = 8547 }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,87 @@
+job "transmission" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.transmission.node ]]"
+  }
+
+  group "transmission" {
+    count = 1
+
+    task "transmission" {
+      driver = "docker"
+
+      config {
+        image        = "haugene/transmission-openvpn:2.13-alpine"
+        force_pull   = "false"
+        network_mode = "host"
+        privileged   = "true"
+        volumes = [
+          "[[ .app.transmission.config ]]:/data/transmission-home/",
+          "[[ .app.transmission.downloads ]]:/downloads",
+          "[[ .app.transmission.incompleteDownloads ]]:/incomplete-downloads",
+          "[[ .app.transmission.watch ]]:/data/watch",
+        ]
+        cap_add = ["NET_ADMIN"]
+      }
+
+      env {
+        PGID                                = "1001"
+        PUID                                = "1001"
+        TZ                                  = "UTC"
+        UMASK_SET                           = "18"
+        OPENVPN_PROVIDER                    = ""
+        NORDVPN_COUNTRY                     = ""
+        NORDVPN_CATEGORY                    = ""
+        NORDVPN_PROTOCOL                    = "tcp"
+        OPENVPN_OPTS                        = "--inactive 3600 --ping 10 --ping-exit 60"
+        OPENVPN_USERNAME                    = ""
+        OPENVPN_PASSWORD                    = ""
+        LOCAL_NETWORK                       = "10.0.0.0/8"
+        TRANSMISSION_UTP_ENABLED            = "false"
+        TRANSMISSION_DOWNLOAD_DIR           = "/downloads"
+        TRANSMISSION_INCOMPLETE_DIR         = "/incomplete-downloads"
+        TRANSMISSION_INCOMPLETE_DIR_ENABLED = "true"
+        TRANSMISSION_WEB_UI                 = "transmission-web-control"
+        CREATE_TUN_DEVICE                   = "true"
+      }
+
+      service {
+        port = "http"
+        name = "transmission"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 256
+        memory = 256
+        network {
+          port "http" { static = 9091 }
+          port "tcp" { static = 5299 }
+        }
+      }
+    }
+  }
+}

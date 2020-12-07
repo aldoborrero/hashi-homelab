@@ -1,0 +1,66 @@
+job "radarr" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.radarr.node ]]"
+  }
+
+  group "radarr" {
+    count = 1
+
+    task "radarr" {
+      driver = "docker"
+
+      config {
+        image        = "linuxserver/radarr:3.0.0.3790-ls31"
+        force_pull   = "false"
+        network_mode = "host"
+        volumes = [
+          "[[ .app.radarr.config ]]:/config",
+          "[[ .app.radarr.downloads ]]:/downloads",
+          "[[ .app.radarr.movies ]]:/movies",
+        ]
+      }
+
+      env {
+        PUID = 1000
+        PGID = 1000
+      }
+
+      service {
+        port = "http"
+        name = "radarr"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        memory = 512
+        network {
+          port "http" { static = 7878 }
+        }
+      }
+    }
+  }
+}

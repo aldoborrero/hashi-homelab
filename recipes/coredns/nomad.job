@@ -1,0 +1,125 @@
+job "coredns" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "system"
+  priority    = 100
+
+  meta {
+    version = "1"
+  }
+
+  group "coredns" {
+    count = 1
+
+    update {
+      max_parallel     = 1
+      min_healthy_time = "30s"
+      auto_revert      = true
+    }
+
+    task "coredns" {
+      driver = "docker"
+
+      config {
+        image        = "coredns/coredns"
+        force_pull   = "false"
+        args         = ["-conf", "local/coredns/corefile"]
+        network_mode = "host"
+      }
+
+      service {
+        port = "http"
+        name = "coredns"
+        tags = ["coredns"]
+        check {
+          type     = "tcp"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      service {
+        port = "metrics"
+        name = "coredns"
+        tags = ["metrics", "coredns"]
+        check {
+          type     = "tcp"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      template {
+        data            = <<EOH
+. {
+  bind {{ env "NOMAD_IP_http" }}
+  forward . 1.1.1.1 1.0.0.1
+  log
+  prometheus 192.168.1.14:9153
+}
+
+home.:53 {
+  bind {{ env "NOMAD_IP_http" }}
+  errors
+  file /local/coredns/zones/home {
+    reload 60s
+  }
+  log
+  prometheus 192.168.1.14:9153
+}
+
+consul.:53 {
+  bind {{ env "NOMAD_IP_http" }}
+  forward . {{ env "NOMAD_IP_http" }}:8600
+  log
+  prometheus 192.168.1.14:9153
+}
+EOH
+        destination     = "local/coredns/corefile"
+        env             = false
+        change_mode     = "signal"
+        change_signal   = "SIGHUP"
+        left_delimiter  = "{{"
+        right_delimiter = "}}"
+      }
+
+      template {
+        data            = <<EOH
+$ORIGIN home.
+@       3600 IN SOA ns1.home. ns2.home. (
+          {{ timestamp "unix" }} ; serial
+          7200       ; refresh (2 hours)
+          3600       ; retry (1 hour)
+          1209600    ; expire (2 weeks)
+          3600       ; minimum (1 hour)
+          )
+
+        3600 IN NS ns1.home.
+        3600 IN NS ns2.home.
+
+ns1  		IN  A  192.168.1.15
+ns2  		IN  A  192.168.1.16
+
+*.home. IN  A  192.168.1.14
+*.home. IN  A  192.168.1.15
+*.home. IN  A  192.168.1.16
+EOH
+        destination     = "local/coredns/zones/home"
+        env             = false
+        change_mode     = "signal"
+        change_signal   = "SIGHUP"
+        left_delimiter  = "{{"
+        right_delimiter = "}}"
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+        network {
+          port "http" { static = 53 }
+          port "metrics" { static = 9153 }
+        }
+      }
+    }
+  }
+}

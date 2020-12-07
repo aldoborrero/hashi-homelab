@@ -1,0 +1,50 @@
+job "pihole" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  group "networking" {
+    count = 1
+
+    task "pihole" {
+      driver = "docker"
+
+      config {
+        image        = "pihole/pihole:v5.1.2"
+        network_mode = "host"
+        volumes = [
+          "[[ .app.pihole.config ]]:/config",
+        ]
+      }
+
+      service {
+        port = "http"
+        name = "pihole"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)"
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+        network {
+          port "http" { static = "80" }
+          port "dns" { static = "53" }
+          port "client-udp" { static = "67" }
+        }
+      }
+    }
+  }
+}

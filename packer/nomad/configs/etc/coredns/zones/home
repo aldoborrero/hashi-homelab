@@ -1,0 +1,23 @@
+$ORIGIN home.
+@       3600 IN SOA ns1.home. ns2.home. (2020091025 7200 3600 1209600 3600)
+        3600 IN NS ns1.home.
+        3600 IN NS ns2.home.
+
+ns1  		             IN  A  192.168.1.15
+ns2  		             IN  A  192.168.1.16
+
+router.home.         IN  A  192.168.1.1
+proxmox-1.home.      IN  A  192.168.1.4
+proxmox-2.home.      IN  A  192.168.1.5
+proxmox-2.home.      IN  A  192.168.1.6
+nas.home.            IN  A  192.168.1.8
+nomad-1.home.        IN  A  192.168.1.14
+nomad-2.home.        IN  A  192.168.1.15
+nomad-3.home.        IN  A  192.168.1.16
+nomad-server-1.home. IN  A  192.168.1.17
+nomad-server-2.home. IN  A  192.168.1.18
+nomad-server-3.home. IN  A  192.168.1.19
+
+*.home.              IN  A  192.168.1.14
+*.home.              IN  A  192.168.1.15
+*.home.              IN  A  192.168.1.16

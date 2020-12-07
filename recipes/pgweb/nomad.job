@@ -1,0 +1,53 @@
+job "pgweb" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  meta {
+    version = "1"
+  }
+
+  group "pgweb" {
+    count = 1
+
+    task "pgweb" {
+      driver = "docker"
+
+      config {
+        image        = "sosedoff/pgweb:0.11.6"
+        force_pull   = "false"
+        network_mode = "host"
+        command = "/usr/bin/pgweb"
+        args = ["--bind=0.0.0.0", "--listen=8082"]
+      }
+
+      service {
+        port = "http"
+        name = "pgweb"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        memory = 128
+        network {
+          port "http" { static = 8082 }
+        }
+      }
+    }
+  }
+}
