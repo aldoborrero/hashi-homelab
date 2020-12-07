@@ -3,14 +3,15 @@
     "proxmox_url": "https://{{env `PROXMOX_HOST`}}:8006/api2/json",
     "proxmox_username": "root@pam",
     "proxmox_password": "{{env `PROXMOX_PASSWORD`}}",
-    "proxmox_host_node": "proxmox",
+    "proxmox_host_node": "{{env `PROXMOX_HOST_NODE`}}",
     "proxmox_vm_id": "1000",
     "proxmox_template_name": "nomad-ubuntu-20.04-tpl",
     "iso_filename": "Proxmox:iso/ubuntu-20.04-minimal-amd64.iso",
-    "cores": "1",
-    "memory": "1024",
-    "ssh_username": "packer",
-    "ssh_password": "packer"
+    "cores": "4",
+    "sockets": "1",
+    "memory": "24576",
+    "ssh_username": "nomad",
+    "ssh_password": "nomad"
   },
   "sensitive-variables": [
     "proxmox_password",
@@ -35,6 +36,7 @@
 
       "cores": "{{user `cores`}}",
       "memory": "{{user `memory`}}",
+      "os": "l26",
       "network_adapters": [
         {
           "model": "virtio",
@@ -72,6 +74,11 @@
   "provisioners": [
     {
       "type": "file",
+      "source": "./configs",
+      "destination": "/tmp"
+    },
+    {
+      "type": "file",
       "pause_before": "20s",
       "source": "./configs/provisioner.sh",
       "destination": "/tmp/provisioner.sh"
@@ -80,11 +87,6 @@
       "type": "shell",
       "inline_shebang": "/bin/bash -e",
       "inline": ["/bin/bash /tmp/provisioner.sh"]
-    },
-    {
-      "type": "file",
-      "source": "./configs/etc/",
-      "destination": "/etc/"
     }
   ],
   "post-processors": [

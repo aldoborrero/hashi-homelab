@@ -14,6 +14,7 @@ home.:53 {
 }
 
 consul.:53 {
+  errors
   forward . 127.0.0.1:8600
   log
   prometheus 192.168.1.14:9153
