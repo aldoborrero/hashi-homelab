@@ -65,7 +65,7 @@
         " initrd=initrd.gz",
         " auto=true",
         " priority=critical",
-        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu_20.04.preseed.cfg",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg",
         " --- <wait>",
         "<enter><wait>"
       ]
@@ -80,7 +80,7 @@
     {
       "type": "file",
       "pause_before": "20s",
-      "source": "./provisioners/",
+      "source": "./scripts/",
       "destination": "/tmp/"
     },
     {

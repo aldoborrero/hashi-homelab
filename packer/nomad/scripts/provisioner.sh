@@ -5,7 +5,7 @@ set -o errexit
 DEBIAN_FRONTEND=noninteractive
 
 CONSUL_VERSION='1.9.0'
-NOMAD_VERSION='0.12.9'
+NOMAD_VERSION='1.0.0'
 VAULT_VERSION='1.6.0'
 COREDNS_VERSION='1.8.0'
 
@@ -47,8 +47,6 @@ sudo mv /tmp/coredns /usr/local/bin
 sudo mkdir -p /opt/coredns /etc/coredns
 sudo apt install -y resolvconf
 echo 'nameserver 127.0.0.1' | sudo tee -a /etc/resolvconf/resolv.conf.d/head > /dev/null
-sudo systemctl mask systemd-resolved
-sudo systemctl disable systemd-resolved
 sudo useradd -d /var/lib/coredns -m coredns
 sudo chown coredns:coredns /opt/coredns
 

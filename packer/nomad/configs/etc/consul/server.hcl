@@ -1,12 +1,12 @@
 server = true
-bootstrap_expect = 3
+ui = true
+client_addr = "0.0.0.0"
 advertise_addr = ""
 advertise_addr_wan = ""
-bind_addr = "{{GetInterfaceIP \"eth0\"}}"
-client_addr = "0.0.0.0"
+bind_addr = "{{GetInterfaceIP \"ens18\"}}"
+bootstrap_expect = 3
 data_dir = "/var/consul"
 datacenter = "home"
 enable_syslog = true
 log_level = "WARN"
-retry_join = ["192.168.1.17", "192.168.1.18", "192.168.1.19"]
-ui = false
+retry_join = ["nomad-server-1.home", "nomad-server-2.home", "nomad-server-3.home"]
