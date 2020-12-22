@@ -19,7 +19,7 @@ job "radarr" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/radarr:3.0.0.3790-ls31"
+        image        = "linuxserver/radarr:3.0.1.4251-ls3"
         force_pull   = "false"
         network_mode = "host"
         volumes = [

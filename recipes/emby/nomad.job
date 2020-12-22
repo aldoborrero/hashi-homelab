@@ -19,14 +19,15 @@ job "emby" {
       driver = "docker"
 
       config {
-        image        = "emby/embyserver:4.6.0.1"
+        image        = "emby/embyserver:4.6.0.9"
         network_mode = "host"
         privileged   = "true"
         force_pull   = "false"
         volumes = [
+          "[[ .app.emby.root ]]:/media",
           "[[ .app.emby.config ]]:/config",
           "[[ .app.emby.transcode ]]:/transcode",
-          "[[ .app.plex.root ]]:/media",
+          "[[ .app.emby.backups ]]:/backups",
         ]
       }
 
@@ -57,7 +58,7 @@ job "emby" {
 
       resources {
         cpu    = 1024
-        memory = 16284
+        memory = 8192
         network {
           port "http" { static = 8096 }
         }

@@ -19,7 +19,7 @@ job "plex" {
       driver = "docker"
 
       config {
-        image        = "plexinc/pms-docker"
+        image        = "plexinc/pms-docker:1.21.1.3830-6c22540d5"
         network_mode = "host"
         privileged   = "true"
         force_pull   = "false"
@@ -52,7 +52,7 @@ job "plex" {
 
       resources {
         cpu    = 1024
-        memory = 16284
+        memory = 8192
         network {
           port "http" { static = 32400 }
         }

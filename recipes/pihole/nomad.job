@@ -14,8 +14,9 @@ job "pihole" {
       driver = "docker"
 
       config {
-        image        = "pihole/pihole:v5.1.2"
-        network_mode = "host"
+        image        = "pihole/pihole:v5.2.1"
+        network_mode = "bridge"
+        ports = ["http", "dns"]
         volumes = [
           "[[ .app.pihole.config ]]:/config",
         ]
@@ -26,7 +27,13 @@ job "pihole" {
         name = "pihole"
         tags = [
           "traefik.enable=true",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)"
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
         ]
         check {
           type     = "http"
@@ -39,10 +46,17 @@ job "pihole" {
       resources {
         cpu    = 100
         memory = 128
+
         network {
-          port "http" { static = "80" }
-          port "dns" { static = "53" }
-          port "client-udp" { static = "67" }
+          port "http" {
+            static = "8282"
+            to = "80"
+          }
+          port "dns" {
+            static = "5353"
+            to = "53"
+          }
+          port "udp" { static = "67" }
         }
       }
     }

@@ -20,7 +20,7 @@ job "traefik" {
       driver = "docker"
 
       config {
-        image        = "traefik:v2.2"
+        image        = "traefik:v2.3"
         network_mode = "host"
         volumes = [
           "local/traefik.toml:/etc/traefik/traefik.toml",

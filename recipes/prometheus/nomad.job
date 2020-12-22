@@ -24,7 +24,7 @@ job "prometheus" {
       driver = "docker"
 
       config {
-        image = "prom/prometheus"
+        image = "prom/prometheus:v2.23.0"
         network_mode = "host"
         args = [
           "--config.file", "/local/prometheus.yml",
@@ -79,39 +79,38 @@ global:
   evaluation_interval: 60s
 
 scrape_configs:
-  - job_name: "prometheus"
+  - job_name: prometheus
+    static_configs:
+      - targets: ["nomad-1.node.consul:9090"]
+
+  - job_name: server-stats
     static_configs:
       - targets:
-        - "192.168.1.14:9090"
+        - "nomad-1.node.consul:9100"
+        - "nomad-2.node.consul:9100"
+        - "nomad-3.node.consul:9100"
 
-  - job_name: "server-stats"
-    static_configs:
-      - targets:
-        - "192.168.1.14:9100"
-        - "192.168.1.15:9100"
-        - "192.168.1.16:9100"
-
-  - job_name: "besu"
+  - job_name: besu
     scrape_interval: 15s
     scrape_timeout: 10s
     static_configs:
-      - targets:
-        - "192.168.1.14:9545"
+      - targets: ["besu.service.consul:9545"]
 
-  - job_name: "coredns"
+  - job_name: coredns
     static_configs:
-      - targets:
-        - "192.168.1.15:9153"
+      - targets: ["nomad-2.node.consul:9153", "nomad-3.node.consul:9153"]
 
-  - job_name: "pihole"
+  - job_name: pihole
     static_configs:
-      - targets:
-        - "192.168.1.15"
+      - targets: ["pihole.service.consul"]
 
-  - job_name: "turbogeth"
+  - job_name: turbogeth
     static_configs:
-      - targets:
-        - "192.168.1.14:6060"
+      - targets: ["turbogeth.service.consul:6060"]
+
+  - job_name: mikrotik
+    static_configs:
+      - targets: ["mikrotik-exporter.service.consul:9436"]
 EOH
 
         destination   = "local/prometheus.yml"

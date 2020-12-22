@@ -9,4 +9,4 @@ data_dir = "/var/consul"
 datacenter = "home"
 enable_syslog = true
 log_level = "WARN"
-retry_join = ["nomad-server-1.home", "nomad-server-2.home", "nomad-server-3.home"]
+retry_join = ["192.168.1.17", "192.168.1.18", "192.168.1.19"]

@@ -14,7 +14,7 @@ job "bitwarden" {
       driver = "docker"
 
       config {
-        image        = "bitwardenrs/server-postgresql:1.16.3"
+        image        = "bitwardenrs/server-postgresql:1.17.0"
         force_pull   = "false"
         network_mode = "host"
         volumes = [

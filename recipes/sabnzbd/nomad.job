@@ -19,7 +19,7 @@ job "sabnzbd" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/sabnzbd:3.1.1-ls5"
+        image        = "linuxserver/sabnzbd:3.1.1-ls25"
         force_pull   = "false"
         network_mode = "host"
         volumes = [

@@ -1,4 +1,4 @@
-job "lazylibrarian" {
+job "readarr" {
   region      = "[[ .region ]]"
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
@@ -7,20 +7,26 @@ job "lazylibrarian" {
     version = "1"
   }
 
-  group "lazylibrarian" {
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.readarr.node ]]"
+  }
+
+  group "readarr" {
     count = 1
 
-    task "lazylibrarian" {
+    task "readarr" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/lazylibrarian"
-        force_pull   = "false"
+        image        = "hotio/readarr:nightly-ba2e3cd"
+        force_pull   = "true"
         network_mode = "host"
         volumes = [
-          "[[ .app.lazylibrarian.config ]]:/config",
-          "[[ .app.lazylibrarian.downloads ]]:/downloads",
-          "[[ .app.lazylibrarian.books ]]:/books",
+          "[[ .app.readarr.config ]]:/config",
+          "[[ .app.readarr.books ]]:/books",
+          "[[ .app.readarr.audiobooks ]]:/audiobooks",
+          "[[ .app.readarr.downloads ]]:/downloads",
         ]
       }
 
@@ -31,7 +37,7 @@ job "lazylibrarian" {
 
       service {
         port = "http"
-        name = "lazylibrarian"
+        name = "readarr"
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
@@ -54,7 +60,7 @@ job "lazylibrarian" {
         cpu    = 100
         memory = 128
         network {
-          port "http" { static = 5299 }
+          port "http" { static = 8787 }
         }
       }
     }

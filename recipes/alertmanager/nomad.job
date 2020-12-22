@@ -1,4 +1,4 @@
-job "jackett" {
+job "alertmanager" {
   region      = "[[ .region ]]"
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
@@ -7,29 +7,45 @@ job "jackett" {
     version = "1"
   }
 
-  group "jackett" {
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.alertmanager.node ]]"
+  }
+
+  update {
+    stagger      = "10s"
+    max_parallel = 1
+  }
+
+  group "alertmanager" {
     count = 1
 
-    task "jackett" {
+    ephemeral_disk {
+      sticky = true
+    }
+
+    task "alertmanager" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/jackett:v0.17.3-ls6"
-        force_pull   = "false"
+        image        = "prom/alertmanager:v0.21.0"
         network_mode = "host"
-        volumes = [
-          "[[ .app.jackett.config ]]:/config",
+        force_pull   = false
+        args = [
+          "--web.external-url",
+          "https://${NOMAD_TASK_NAME}[[ .tld ]]",
+          "--config.file",
+          "/local/config.yml",
+          "--storage.path",
+          "/local/alertmanager",
+          "--web.listen-address",
+          "0.0.0.0:9093"
         ]
       }
 
-      env {
-        PUID = 1000
-        PGID = 1000
-      }
-
       service {
+        name = "alertmanager"
         port = "http"
-        name = "jackett"
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
@@ -42,18 +58,40 @@ job "jackett" {
         ]
         check {
           type     = "tcp"
+          port     = "http"
           interval = "10s"
           timeout  = "2s"
         }
       }
 
+      template {
+        data = <<EOH
+receivers:
+  - name: 'default'
+
+route:
+  receiver: 'default'
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  group_by: [cluster, alertname]
+EOH
+
+        destination     = "local/config.yml"
+        env             = false
+        left_delimiter  = "{{{{"
+        right_delimiter = "}}}}"
+      }
+
       resources {
         cpu    = 100
-        memory = 256
+        memory = 128
+
         network {
-          port "http" { static = 9117 }
+          port "http" { static = 9093 }
         }
       }
     }
+
   }
 }

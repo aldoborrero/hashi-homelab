@@ -14,7 +14,7 @@ job "heimdall" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/heimdall"
+        image        = "linuxserver/heimdall:version-2.2.2"
         force_pull   = "false"
         volumes = [
           "[[ .app.heimdall.config ]]:/config"
@@ -35,10 +35,10 @@ job "heimdall" {
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
           "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
           "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`in[[ .tld ]]`)",
           "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`in[[ .tld ]]`)",
+          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=in[[ .tld ]]",
         ]
         check {
           type     = "http"

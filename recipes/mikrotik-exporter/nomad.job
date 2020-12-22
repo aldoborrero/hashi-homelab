@@ -19,10 +19,27 @@ job "mikrotik-exporter" {
       }
 
       env {
-        DEVICE = "router"
-        ADDRESS = "192.168.1.1"
-        USER = "prometheus"
-        PASSWORD = "changeme"
+        CONFIG_FILE = "/local/config.yaml"
+      }
+
+      template {
+        data = <<EOF
+devices:
+  - name: mikrotik
+    address: 192.168.1.1
+    user: prometheus
+    password: changeme
+features:
+  bgp: true
+  dhcp: true
+  dhcpv6: true
+  dhcpl: true
+  routes: true
+  pools: true
+  optics: true
+EOF
+
+        destination = "local/config.yaml"
       }
 
       service {

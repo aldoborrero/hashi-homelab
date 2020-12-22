@@ -14,15 +14,15 @@ job "miniflux" {
       driver = "docker"
 
       config {
-        image        = "miniflux/miniflux:2.0.23"
+        image        = "miniflux/miniflux:2.0.26"
         force_pull   = "false"
         network_mode = "host"
         volumes = []
       }
 
       env {
-        DATABASE_URL = "postgresql://miniflux:miniflux@postgres.service.consul/miniflux?sslmode=disable"
         BASE_URL = "https://miniflux.home"
+        DATABASE_URL = "postgresql://miniflux:miniflux@postgres.service.consul/miniflux?sslmode=disable"
       }
 
       service {

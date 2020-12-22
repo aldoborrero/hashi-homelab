@@ -1,4 +1,4 @@
-job "alertmanager" {
+job "deluge" {
   region      = "[[ .region ]]"
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
@@ -9,43 +9,37 @@ job "alertmanager" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.alertmanager.node ]]"
+    value     = "[[ .app.deluge.node ]]"
   }
 
-  update {
-    stagger      = "10s"
-    max_parallel = 1
-  }
-
-  group "alertmanager" {
+  group "deluge" {
     count = 1
 
-    ephemeral_disk {
-      sticky = true
-    }
-
-    task "alertmanager" {
+    task "deluge" {
       driver = "docker"
 
       config {
-        image        = "prom/alertmanager:v0.21.0"
+        image        = "linuxserver/deluge:version-2.0.3-2201906121747ubuntu18.04.1"
+        force_pull   = "false"
         network_mode = "host"
-        force_pull   = false
-        args = [
-          "--web.external-url",
-          "https://${NOMAD_TASK_NAME}[[ .tld ]]",
-          "--config.file",
-          "/local/config.yml",
-          "--storage.path",
-          "/local/alertmanager",
-          "--web.listen-address",
-          "0.0.0.0:9093"
+        privileged   = "true"
+        volumes = [
+          "[[ .app.deluge.config ]]:/config",
+          "[[ .app.deluge.downloads ]]:/downloads",
         ]
+        cap_add = ["NET_ADMIN"]
+      }
+
+      env {
+        PGID      = "1001"
+        PUID      = "1001"
+        TZ        = "UTC"
+        UMASK_SET = "18"
       }
 
       service {
-        name = "alertmanager"
         port = "http"
+        name = "deluge"
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
@@ -57,38 +51,21 @@ job "alertmanager" {
           "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
         ]
         check {
-          type     = "tcp"
-          port     = "http"
+          type     = "http"
+          path     = "/"
           interval = "10s"
           timeout  = "2s"
         }
       }
 
-      template {
-        data = <<EOH
-global:
-
-route:
-
-receivers:
-
-EOH
-
-        destination     = "local/config.yml"
-        env             = false
-        left_delimiter  = "{{{{"
-        right_delimiter = "}}}}"
-      }
-
       resources {
-        cpu    = 20
-        memory = 24
-
+        cpu    = 256
+        memory = 256
         network {
-          port "http" { static = 9093 }
+          port "http" { static = 9091 }
+          port "tcp" { static = 5299 }
         }
       }
     }
-
   }
 }

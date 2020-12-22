@@ -1,4 +1,4 @@
-job "jackett" {
+job "calibre" {
   region      = "[[ .region ]]"
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
@@ -7,18 +7,24 @@ job "jackett" {
     version = "1"
   }
 
-  group "jackett" {
+  // constraint {
+  //   attribute = "${attr.unique.hostname}"
+  //   value     = "[[ .app.calibre.node ]]"
+  // }
+
+  group "calibre" {
     count = 1
 
-    task "jackett" {
+    task "calibre" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/jackett:v0.17.3-ls6"
+        image        = "technosoft2000/calibre-web:v1.5.0"
         force_pull   = "false"
         network_mode = "host"
         volumes = [
-          "[[ .app.jackett.config ]]:/config",
+          "[[ .app.calibre.config ]]:/config",
+          "[[ .app.calibre.books ]]:/books",
         ]
       }
 
@@ -29,7 +35,7 @@ job "jackett" {
 
       service {
         port = "http"
-        name = "jackett"
+        name = "calibre"
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
@@ -41,17 +47,17 @@ job "jackett" {
           "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
         ]
         check {
-          type     = "tcp"
+          type     = "http"
+          path     = "/"
           interval = "10s"
           timeout  = "2s"
         }
       }
 
       resources {
-        cpu    = 100
-        memory = 256
+        memory = 512
         network {
-          port "http" { static = 9117 }
+          port "http" { static = 8083 }
         }
       }
     }

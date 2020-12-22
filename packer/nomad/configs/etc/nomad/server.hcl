@@ -1,8 +1,8 @@
+bind_addr = "0.0.0.0"
 data_dir = "/var/nomad/"
 datacenter = "dc1"
 region = "home"
 log_level = "warn"
-bind_addr = "0.0.0.0"
 
 server {
   enabled = true

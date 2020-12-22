@@ -4,7 +4,7 @@ tld: .home
 
 app:
   alertmanager:
-    node: nomad-3
+    node: nomad-1
 
   bazarr:
     node: nomad-3
@@ -20,11 +20,16 @@ app:
   bitwarden:
     data: /mnt/services/bitwarden
 
+  calibre:
+    config: /mnt/services/calibre
+    books: /mnt/media/books
+
   emby:
-    node: nomad-2
+    node: nomad-3
     root: /mnt/media/
-    config: /mnt/disks/093f9866-e36b-4525-931b-a380aba98a6a/emby
-    transcode: /mnt/disks/093f9866-e36b-4525-931b-a380aba98a6a/emby/transcode
+    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/emby
+    transcode: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/emby/transcode
+    backups: /mnt/services/emby
 
   guacamole:
     node: nomad-3
@@ -41,14 +46,14 @@ app:
   jackett:
     config: /mnt/services/jackett
 
-  lazylibrarian:
-    config: /mnt/services/lazylibrarian
-    downloads: /mnt/media/downloads
-    books: /mnt/media/books
+  loki:
+    node: nomad-1
+    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/loki
 
   mylar:
     config: /mnt/services/mylar
     downloads: /mnt/media/downloads
+    comics: /mnt/media/comics
 
   nzbget:
     node: nomad-2
@@ -83,11 +88,18 @@ app:
     downloads: /mnt/media/downloads
     movies: /mnt/media/movies
 
+  readarr:
+    node: nomad-3
+    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/readarr
+    downloads: /mnt/media/downloads
+    books: /mnt/media/books
+    audiobooks: /mnt/media/audiobooks
+
   sabnzbd:
-    node: nomad-2
+    node: nomad-3
     config: /mnt/services/sabnzbd
     downloads: /mnt/media/downloads
-    incompleteDownloads: /mnt/disks/093f9866-e36b-4525-931b-a380aba98a6a/incomplete-downloads
+    incompleteDownloads: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/incomplete-downloads
 
   sonarr:
     node: nomad-3
@@ -99,7 +111,7 @@ app:
     config: /mnt/services/transmission
     watch: /mnt/media/watch
     downloads: /mnt/media/downloads
-    incompleteDownloads: "/mnt/media/incomplete-downloads"
+    incompleteDownloads: /mnt/media/incomplete-downloads
 
   traefik:
     dynamic: /mnt/services/traefik/dynamic

@@ -14,13 +14,13 @@ job "mylar" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/mylar"
+        image        = "linuxserver/mylar3:v0.4.9.2-ls7"
         force_pull   = "false"
         network_mode = "host"
         volumes = [
           "[[ .app.mylar.config ]]:/config",
           "[[ .app.mylar.downloads ]]:/downloads",
-          "[[ .app.media.comics ]]:/comics",
+          "[[ .app.mylar.comics ]]:/comics",
         ]
       }
 
