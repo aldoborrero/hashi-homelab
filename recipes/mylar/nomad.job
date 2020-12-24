@@ -3,10 +3,6 @@ job "mylar" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "mylar" {
     count = 1
 

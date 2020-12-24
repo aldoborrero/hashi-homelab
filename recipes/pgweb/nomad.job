@@ -3,10 +3,6 @@ job "pgweb" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "pgweb" {
     count = 1
 

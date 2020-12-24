@@ -3,10 +3,6 @@ job "aleth" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "aleth" {
     count = 1
 

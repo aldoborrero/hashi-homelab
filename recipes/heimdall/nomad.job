@@ -3,10 +3,6 @@ job "heimdall" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "heimdall" {
     count = 1
 

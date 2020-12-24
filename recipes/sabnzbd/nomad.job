@@ -3,10 +3,6 @@ job "sabnzbd" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   constraint {
     attribute = "${attr.unique.hostname}"
     value     = "[[ .app.sabnzbd.node ]]"
@@ -24,8 +20,7 @@ job "sabnzbd" {
         network_mode = "host"
         volumes = [
           "[[ .app.sabnzbd.config ]]:/config",
-          "[[ .app.sabnzbd.downloads ]]:/downloads",
-          "[[ .app.sabnzbd.incompleteDownloads ]]:/incomplete-downloads"
+          "[[ .app.sabnzbd.downloads ]]:/downloads"
         ]
       }
 

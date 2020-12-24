@@ -3,10 +3,6 @@ job "mikrotik-exporter" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "networking" {
     count = 1
 

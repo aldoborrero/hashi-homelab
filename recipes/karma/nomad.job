@@ -3,10 +3,6 @@ job "karma" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "karma" {
     count = 1
 

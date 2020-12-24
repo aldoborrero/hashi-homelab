@@ -3,10 +3,6 @@ job "bitwarden" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "bitwarden" {
     count = 1
 

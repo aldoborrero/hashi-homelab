@@ -3,10 +3,6 @@ job "jackett" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "jackett" {
     count = 1
 

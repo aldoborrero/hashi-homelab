@@ -3,10 +3,6 @@ job "emby" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   constraint {
     attribute = "${attr.unique.hostname}"
     value     = "[[ .app.emby.node ]]"

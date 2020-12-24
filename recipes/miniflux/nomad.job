@@ -3,10 +3,6 @@ job "miniflux" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "miniflux" {
     count = 1
 

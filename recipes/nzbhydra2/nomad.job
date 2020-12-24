@@ -3,10 +3,6 @@ job "nzbhydra2" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
-  }
-
   group "nzbhydra2" {
     count = 1
 

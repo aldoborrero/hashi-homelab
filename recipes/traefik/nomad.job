@@ -3,10 +3,6 @@ job "traefik" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "system"
 
-  meta {
-    version = "1"
-  }
-
   group "traefik" {
     count = 1
 

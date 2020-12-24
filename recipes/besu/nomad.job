@@ -4,10 +4,6 @@ job "besu" {
   type        = "service"
   priority    = 100
 
-  meta {
-    version = "1"
-  }
-
   constraint {
     attribute = "${attr.unique.hostname}"
     value     = "[[ .app.besu.node ]]"

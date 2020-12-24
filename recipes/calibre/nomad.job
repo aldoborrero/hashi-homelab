@@ -3,14 +3,10 @@ job "calibre" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
-  meta {
-    version = "1"
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.calibre.node ]]"
   }
-
-  // constraint {
-  //   attribute = "${attr.unique.hostname}"
-  //   value     = "[[ .app.calibre.node ]]"
-  // }
 
   group "calibre" {
     count = 1
@@ -21,7 +17,7 @@ job "calibre" {
       config {
         image        = "technosoft2000/calibre-web:v1.5.0"
         force_pull   = "false"
-        network_mode = "host"
+        network_mode = "bridge"
         volumes = [
           "[[ .app.calibre.config ]]:/config",
           "[[ .app.calibre.books ]]:/books",
@@ -50,14 +46,20 @@ job "calibre" {
           type     = "http"
           path     = "/"
           interval = "10s"
-          timeout  = "2s"
+          timeout  = "5s"
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         memory = 512
         network {
-          port "http" { static = 8083 }
+          port "http" {
+            to = 8585
+          }
         }
       }
     }
