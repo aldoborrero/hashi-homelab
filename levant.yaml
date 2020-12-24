@@ -4,41 +4,47 @@ tld: .home
 
 app:
   alertmanager:
-    node: nomad-1
+    node: nomad-2
 
   bazarr:
     node: nomad-3
-    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/bazarr
+    config: /mnt/disks/sdb/bazarr
     downloads: /mnt/media/downloads
     movies: /mnt/media/movies
     tv: /mnt/media/tv-shows
 
   besu:
     node: nomad-1
-    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/besu/mainnet
+    data: /mnt/disks/sdb/besu/mainnet
 
   bitwarden:
     data: /mnt/services/bitwarden
 
   calibre:
-    config: /mnt/services/calibre
+    node: nomad-3
+    config: /mnt/disks/sdb/calibre
     books: /mnt/media/books
+
+  deluge:
+    node: nomad-2
+    config: /mnt/services/deluge
+    downloads: /mnt/media/downloads
 
   emby:
     node: nomad-3
     root: /mnt/media/
-    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/emby
-    transcode: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/emby/transcode
+    config: /mnt/disks/sdb/emby
+    transcode: /mnt/disks/sdb/emby/transcode
     backups: /mnt/services/emby
 
   guacamole:
     node: nomad-3
-    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/guacamole
+    config: /mnt/disks/sdb/guacamole
 
   grafana:
-    node: nomad-1
+    node: nomad-2
     config: /mnt/services/grafana
-    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/grafana
+    data: /mnt/disks/sdb/grafana
 
   heimdall:
     config: /mnt/services/heimdall
@@ -47,10 +53,11 @@ app:
     config: /mnt/services/jackett
 
   loki:
-    node: nomad-1
-    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/loki
+    node: nomad-2
+    data: /mnt/disks/sdb/loki
 
   mylar:
+    node: nomad-3
     config: /mnt/services/mylar
     downloads: /mnt/media/downloads
     comics: /mnt/media/comics
@@ -71,43 +78,47 @@ app:
   plex:
     node: nomad-3
     root: /mnt/media/
-    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/plex
-    transcode: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/plex/transcode
+    config: /mnt/disks/sdb/plex
+    transcode: /mnt/disks/sdb/plex/transcode
 
   postgres:
-    node: nomad-1
-    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/postgres
+    node: nomad-2
+    data: /mnt/disks/sdb/postgres
 
   prometheus:
-    node: nomad-1
-    data: /mnt/disks/aec55d88-af5f-4645-8bbe-4fddc6f31f01/prometheus
+    node: nomad-2
+    data: /mnt/disks/sdb/prometheus
 
   radarr:
     node: nomad-3
-    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/radarr
+    config: /mnt/disks/sdb/radarr
     downloads: /mnt/media/downloads
     movies: /mnt/media/movies
 
   readarr:
     node: nomad-3
-    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/readarr
+    config: /mnt/disks/sdb/readarr
     downloads: /mnt/media/downloads
     books: /mnt/media/books
     audiobooks: /mnt/media/audiobooks
 
   sabnzbd:
-    node: nomad-3
+    node: nomad-2
     config: /mnt/services/sabnzbd
     downloads: /mnt/media/downloads
-    incompleteDownloads: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/incomplete-downloads
 
   sonarr:
     node: nomad-3
-    config: /mnt/disks/078cb742-918c-4852-9dbe-7a4534dd1e12/sonarr
+    config: /mnt/disks/sdb/sonarr
     downloads: /mnt/media/downloads
     tv: /mnt/media/tv-shows
 
+  turbogeth:
+    node: nomad-1
+    data: /mnt/disks/sdb/turbogeth
+
   transmission:
+    node: nomad-2
     config: /mnt/services/transmission
     watch: /mnt/media/watch
     downloads: /mnt/media/downloads
