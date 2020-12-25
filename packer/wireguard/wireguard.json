@@ -20,9 +20,9 @@
   "builders": [
     {
       "type": "proxmox",
-      "insecure_skip_tls_verify": true,
       "proxmox_url": "{{user `proxmox_url`}}",
       "node": "{{user `proxmox_host_node`}}",
+      "insecure_skip_tls_verify": true,
       "username": "{{user `proxmox_username`}}",
       "password": "{{user `proxmox_password`}}",
 
@@ -75,8 +75,8 @@
     {
       "type": "file",
       "pause_before": "20s",
-      "source": "./scripts/provisioner.sh",
-      "destination": "/tmp/provisioner.sh"
+      "source": "./scripts/",
+      "destination": "/tmp/"
     },
     {
       "type": "shell",
