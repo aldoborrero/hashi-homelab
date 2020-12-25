@@ -74,11 +74,6 @@
   "provisioners": [
     {
       "type": "file",
-      "source": "./configs",
-      "destination": "/tmp"
-    },
-    {
-      "type": "file",
       "pause_before": "20s",
       "source": "./scripts/provisioner.sh",
       "destination": "/tmp/provisioner.sh"
