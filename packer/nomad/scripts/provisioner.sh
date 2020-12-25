@@ -50,6 +50,14 @@ echo 'nameserver 127.0.0.1' | sudo tee -a /etc/resolvconf/resolv.conf.d/head > /
 sudo useradd -d /var/lib/coredns -m coredns
 sudo chown coredns:coredns /opt/coredns
 
+# Add node_exporter
+sudo wget https://github.com/prometheus/node_exporter/releases/download/v1.0.1/node_exporter-1.0.1.linux-amd64.tar.gz -O /tmp/nodeexporter.tgz
+sudo tar -xvvf /tmp/nodeexporter.tgz --directory /tmp
+sudo mv /tmp/node_exporter-1.0.1.linux-amd64 /tmp/node_exporter
+sudo chmod +x /tmp/node_exporter
+sudo mv /tmp/node_exporter /usr/sbin/node_exporter
+sudo cp /tmp/configs/etc/sysconfig/node_exporter /etc/sysconfig/
+
 # Copy systemd files
 sudo cp /tmp/configs/etc/systemd/system/* /etc/systemd/system/
 
