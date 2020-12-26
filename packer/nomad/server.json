@@ -4,7 +4,7 @@
     "proxmox_username": "root@pam",
     "proxmox_password": "{{env `PROXMOX_PASSWORD`}}",
     "proxmox_host_node": "{{env `PROXMOX_HOST_NODE`}}",
-    "proxmox_vm_id": "1001",
+    "proxmox_vm_id": "1000",
     "proxmox_template_name": "nomad-server-ubuntu-20.04-tpl",
     "iso_filename": "Proxmox:iso/ubuntu-20.04-minimal-amd64.iso",
     "cores": "1",

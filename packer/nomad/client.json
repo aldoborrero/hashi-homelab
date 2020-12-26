@@ -4,7 +4,7 @@
     "proxmox_username": "root@pam",
     "proxmox_password": "{{env `PROXMOX_PASSWORD`}}",
     "proxmox_host_node": "{{env `PROXMOX_HOST_NODE`}}",
-    "proxmox_vm_id": "1000",
+    "proxmox_vm_id": "1001",
     "proxmox_template_name": "nomad-client-ubuntu-20.04-tpl",
     "iso_filename": "Proxmox:iso/ubuntu-20.04-minimal-amd64.iso",
     "cores": "4",
@@ -58,6 +58,7 @@
       "ssh_timeout": "15m",
 
       "http_directory": "http",
+      "boot": "order=scsi0;ide2",
       "boot_wait": "10s",
       "boot_command": [
         "<esc><wait>",
