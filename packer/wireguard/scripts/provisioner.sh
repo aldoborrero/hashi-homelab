@@ -17,4 +17,9 @@ sudo cp /tmp/configs/etc/sysconfig/* /etc/sysconfig/
 
 # Add Wireguard
 sudo apt update -y
-sudo apt install -y wireguard
+sudo apt install -y wireguard qrencode
+
+# Enable NAT forwarding
+echo "net.ipv4.ip_forward = 1
+net.ipv6.conf.all.forwarding = 1" > /etc/sysctl.d/wg.conf
+sudo sysctl --system
