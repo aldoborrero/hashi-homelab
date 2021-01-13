@@ -1,0 +1,49 @@
+job "mysql" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    value     = "[[ .app.mysql.node ]]"
+  }
+
+  group "mysql" {
+
+    task "mysql" {
+      driver = "docker"
+
+      config {
+        image = "mysql:8.0"
+        network_mode = "host"
+        volumes = [
+          "[[ .app.mysql.data ]]:/var/lib/mysql",
+        ]
+      }
+
+      env {
+        MYSQL_ALLOW_EMPTY_PASSWORD = "YES"
+      }
+
+      service {
+        name = "${NOMAD_JOB_NAME}"
+        tags = ["mysql"]
+        port = "db"
+        check {
+          type     = "tcp"
+          port     = "db"
+          interval = "30s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 1024
+        network {
+          port "db" { static = 3306 }
+        }
+      }
+    }
+  }
+}
