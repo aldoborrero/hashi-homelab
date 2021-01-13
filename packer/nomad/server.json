@@ -49,7 +49,7 @@
           "disk_size": "16G",
           "storage_pool": "local",
           "storage_pool_type": "directory",
-          "format": "qcow2"
+          "format": "raw"
         }
       ],
 

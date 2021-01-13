@@ -5,6 +5,10 @@ set -o errexit
 # Delete unncessary files for Consul
 sudo rm /etc/consul/client.hcl
 
+# Rename nomad file
+sudo mv /etc/nomad/server.hcl /etc/nomad/nomad.hcl
+sudo rm /etc/nomad/client.hcl
+
 # Reload systemctl services
 sudo systemctl daemon-reload
 

@@ -1,7 +1,7 @@
 [Unit]
 Description=consul agent
-Requires=network.service
-After=network.service
+Requires=network
+After=network
 
 [Service]
 Environment=GOMAXPROCS=2
