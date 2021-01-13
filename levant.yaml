@@ -15,7 +15,7 @@ app:
 
   besu:
     node: nomad-1
-    data: /mnt/disks/sdb/besu/mainnet
+    data: /mnt/disks/sdb/besu/mainnet_fast
 
   bitwarden:
     data: /mnt/services/bitwarden
@@ -61,6 +61,10 @@ app:
     config: /mnt/services/mylar
     downloads: /mnt/media/downloads
     comics: /mnt/media/comics
+
+  mysql:
+    node: nomad-2
+    data: /mnt/disks/sdb/mysql
 
   nzbget:
     node: nomad-2

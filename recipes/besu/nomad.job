@@ -26,7 +26,7 @@ job "besu" {
         force_pull   = "false"
         network_mode = "host"
         volumes = [
-          "[[ .app.besu.data ]]:/opt/besu/database",
+          "[[ .app.besu.data ]]:/var/lib/besu",
         ]
       }
 
@@ -34,7 +34,7 @@ job "besu" {
         PUID = 1000
         PGID = 1000
         BESU_NETWORK = "MAINNET"
-        BESU_SYNC_MODE = "FULL"
+        BESU_SYNC_MODE = "FAST"
         BESU_LOGGING = "INFO"
         BESU_HOST_ALLOWLIST = "*"
         BESU_P2P_ENABLED = "true"
@@ -47,6 +47,7 @@ job "besu" {
         BESU_METRICS_HOST = "127.0.0.1"
         BESU_METRICS_PORT = "9545"
         BESU_METRICS_PROMETHEUS_JOB = "besu"
+        BESU_MAX_PEERS = "256"
       }
 
       service {
