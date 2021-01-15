@@ -10,7 +10,7 @@ job "jackett" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/jackett:v0.17.3-ls6"
+        image        = "linuxserver/jackett:v0.17.261-ls15"
         force_pull   = "false"
         network_mode = "host"
         volumes = [

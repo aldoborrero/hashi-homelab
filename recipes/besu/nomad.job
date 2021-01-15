@@ -10,7 +10,7 @@ job "besu" {
   }
 
   group "besu" {
-    count = 0
+    count = 1
 
     reschedule {
       delay          = "120s"
@@ -22,7 +22,7 @@ job "besu" {
       driver = "docker"
 
       config {
-        image        = "hyperledger/besu:1.5.5-graalvm"
+        image        = "hyperledger/besu:20.10-graalvm"
         force_pull   = "false"
         network_mode = "host"
         volumes = [
@@ -48,6 +48,7 @@ job "besu" {
         BESU_METRICS_PORT = "9545"
         BESU_METRICS_PROMETHEUS_JOB = "besu"
         BESU_MAX_PEERS = "256"
+        BESU_DATA_PATH = "/var/lib/besu"
       }
 
       service {

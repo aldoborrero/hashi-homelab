@@ -15,7 +15,7 @@ job "sonarr" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/sonarr:3.0.4.1024-ls10"
+        image        = "linuxserver/sonarr:5.14"
         force_pull   = "false"
         network_mode = "host"
         volumes = [

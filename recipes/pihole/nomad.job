@@ -10,7 +10,7 @@ job "pihole" {
       driver = "docker"
 
       config {
-        image        = "pihole/pihole:v5.2.1"
+        image        = "pihole/pihole:v5.3.4"
         network_mode = "bridge"
         ports = ["http", "dns"]
         volumes = [

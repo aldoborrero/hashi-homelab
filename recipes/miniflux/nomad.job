@@ -10,7 +10,7 @@ job "miniflux" {
       driver = "docker"
 
       config {
-        image        = "miniflux/miniflux:2.0.26"
+        image        = "miniflux/miniflux:2.0.27"
         force_pull   = "false"
         network_mode = "host"
         volumes = []

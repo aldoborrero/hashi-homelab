@@ -10,7 +10,7 @@ job "mylar" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/mylar3:v0.4.9.2-ls7"
+        image        = "linuxserver/mylar3:version-v0.4.9.3"
         force_pull   = "false"
         network_mode = "host"
         volumes = [

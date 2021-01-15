@@ -14,7 +14,7 @@ job "bazarr" {
     task "bazarr" {
       driver = "docker"
       config {
-        image        = "linuxserver/bazarr:88452468-ls35"
+        image        = "linuxserver/bazarr:v0.9.0.7-ls101"
         force_pull   = "false"
         network_mode = "host"
         volumes = [

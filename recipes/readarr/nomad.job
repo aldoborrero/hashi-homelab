@@ -15,7 +15,7 @@ job "readarr" {
       driver = "docker"
 
       config {
-        image        = "hotio/readarr:nightly-ba2e3cd"
+        image        = "hotio/readarr:nightly"
         force_pull   = "true"
         network_mode = "host"
         volumes = [

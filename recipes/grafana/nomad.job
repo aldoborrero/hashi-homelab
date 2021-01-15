@@ -15,7 +15,7 @@ job "grafana" {
       driver = "docker"
 
       config {
-        image = "grafana/grafana:7.3.5"
+        image = "grafana/grafana:7.3.7"
         force_pull   = "false"
         network_mode = "host"
         volumes = [

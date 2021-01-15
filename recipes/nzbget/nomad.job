@@ -15,7 +15,7 @@ job "nzbget" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/nzbget:v21.1-r2311-ls5"
+        image        = "linuxserver/nzbget:v21.0-ls67"
         force_pull   = "false"
         network_mode = "host"
         volumes = [

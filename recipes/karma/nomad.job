@@ -10,7 +10,7 @@ job "karma" {
       driver = "docker"
 
       config {
-        image        = "lmierzwa/karma:v0.70"
+        image        = "lmierzwa/karma:v0.78"
         network_mode = "host"
         force_pull   = false
       }
