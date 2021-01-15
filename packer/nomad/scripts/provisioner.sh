@@ -10,6 +10,9 @@ VAULT_VERSION='1.6.1'
 COREDNS_VERSION='1.8.0'
 NODE_EXPORTER_VERSION='1.0.1'
 
+# Add common dependencies
+sudo apt install nfs-common samba
+
 # Add docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
