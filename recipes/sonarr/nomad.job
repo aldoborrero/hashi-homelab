@@ -12,12 +12,12 @@ job "sonarr" {
   group "sonarr" {
     count = 1
 
+    network {
+      port "http" { static = 8989 }
+    }
+
     task "sonarr" {
       driver = "docker"
-
-      network {
-        port "http" { static = 8989 }
-      }
 
       config {
         image        = "linuxserver/sonarr:preview-3.0.4.1069-ls28"

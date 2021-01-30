@@ -5,7 +5,8 @@ job "plex" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.plex.node ]]"
+    operator  = "[[ .app.plex.constraints.operator ]]"
+    value     = "[[ .app.plex.constraints.node ]]"
   }
 
   group "plex" {

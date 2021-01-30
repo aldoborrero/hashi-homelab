@@ -38,7 +38,7 @@ job "prometheus" {
         ]
       }
 
-      user = "[[ .common.env.pguid ]]"
+      user = "[[ .common.env.puid ]]"
 
       service {
         name = "prometheus"

@@ -228,6 +228,8 @@ app:
       node: nomad-2
     volumes:
       data: /mnt/disks/sdb/prometheus
+    traefik:
+      domain: prometheus.home
 
   radarr:
     constraints:

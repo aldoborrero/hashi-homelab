@@ -6,7 +6,7 @@ job "karma" {
   constraint {
     attribute = "${attr.unique.hostname}"
     operator  = "[[ .app.karma.constraints.operator ]]"
-    value     = "[[ .app.karma.constrains.node ]]"
+    value     = "[[ .app.karma.constraints.node ]]"
   }
 
   group "karma" {

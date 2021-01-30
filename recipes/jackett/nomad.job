@@ -5,7 +5,7 @@ job "jackett" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    operator  = "[[ .app.jackket.constraints.operator ]]"
+    operator  = "[[ .app.jackett.constraints.operator ]]"
     value     = "[[ .app.jackett.constraints.exclude ]]"
   }
 

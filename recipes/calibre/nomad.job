@@ -5,7 +5,7 @@ job "calibre" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    operator  = "[[ .app.calibre.constrains.operator ]]"
+    operator  = "[[ .app.calibre.constraints.operator ]]"
     value     = "[[ .app.calibre.constraints.node ]]"
   }
 
