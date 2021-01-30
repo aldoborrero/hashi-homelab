@@ -11,26 +11,31 @@ job "transmission" {
   group "transmission" {
     count = 1
 
+    network {
+      port "http" { static = 9091 }
+      port "tcp" { static = 5299 }
+    }
+
     task "transmission" {
       driver = "docker"
 
       config {
-        image        = "haugene/transmission-openvpn:2.13-alpine"
-        force_pull   = "false"
+        image        = "haugene/transmission-openvpn:3.3"
         network_mode = "host"
+        ports        = ["http", "tcp"]
         privileged   = "true"
         volumes = [
-          "[[ .app.transmission.config ]]:/data/transmission-home/",
-          "[[ .app.transmission.downloads ]]:/downloads",
-          "[[ .app.transmission.incompleteDownloads ]]:/incomplete-downloads",
-          "[[ .app.transmission.watch ]]:/data/watch",
+          "[[ .app.transmission.volumes.config ]]:/data/transmission-home/",
+          "[[ .app.transmission.volumes.downloads.complete ]]:/downloads",
+          "[[ .app.transmission.volumes.downloads.incomplete ]]:/incomplete-downloads",
+          "[[ .app.transmission.volumes.watch ]]:/data/watch",
         ]
         cap_add = ["NET_ADMIN"]
       }
 
       env {
-        PGID                                = "1001"
-        PUID                                = "1001"
+        PUID                                = "[[ .common.env.puid ]]"
+        PGID                                = "[[ .common.env.pgid ]]"
         TZ                                  = "UTC"
         UMASK_SET                           = "18"
         OPENVPN_PROVIDER                    = ""
@@ -55,28 +60,23 @@ job "transmission" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.transmission_http.entrypoints=http",
+          "traefik.http.routers.transmission_http.middlewares=httpsRedirect",
+          "traefik.http.routers.transmission_http.rule=Host(`[[ .app.transmission.traefik.domain ]]`)",
+          "traefik.http.routers.transmission_https.entrypoints=https",
+          "traefik.http.routers.transmission_https.rule=Host(`[[ .app.transmission.traefik.domain ]]`)",
+          "traefik.http.routers.transmission_https.tls.domains[0].sans=[[ .app.transmission.traefik.domain ]]",
         ]
         check {
-          type     = "http"
-          path     = "/"
-          interval = "10s"
-          timeout  = "2s"
+          type     = "tcp"
+          interval = "60s"
+          timeout  = "20s"
         }
       }
 
       resources {
         cpu    = 256
         memory = 256
-        network {
-          port "http" { static = 9091 }
-          port "tcp" { static = 5299 }
-        }
       }
     }
   }

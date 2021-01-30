@@ -5,27 +5,29 @@ job "guacamole" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.guacamole.node ]]"
+    operator  = "[[ .app.guacamole.constraints.operator ]]"
+    value     = "[[ .app.guacamole.constraints.node ]]"
   }
 
   group "guacamole" {
     count = 1
 
+    network {
+      port "http" { static = 8181 }
+    }
+
     task "guacamole" {
       driver = "docker"
 
       config {
-        image      = "oznu/guacamole:1.2.0-amd64"
-        force_pull = "false"
-        port_map { http = 8080 }
-        volumes = [
-          "[[ .app.guacamole.config ]]:/config",
-        ]
+        image   = "oznu/guacamole:1.2.0-amd64"
+        ports   = ["http"]
+        volumes = ["[[ .app.guacamole.volumes.config ]]:/config"]
       }
 
       env {
-        PUID       = 1000
-        PGID       = 1000
+        PUID       = "[[ .common.env.puid ]]"
+        PGID       = "[[ .common.env.pgid ]]"
         EXTENSIONS = ""
       }
 
@@ -35,12 +37,12 @@ job "guacamole" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.guacamole_http.entrypoints=http",
+          "traefik.http.routers.guacamole_http.middlewares=httpsRedirect",
+          "traefik.http.routers.guacamole_http.rule=Host(`[[ .app.guacamole.traefik.domain ]]`)",
+          "traefik.http.routers.guacamole_https.entrypoints=https",
+          "traefik.http.routers.guacamole_https.rule=Host(`[[ .app.guacamole.traefik.domain ]]`)",
+          "traefik.http.routers.guacamole_https.tls.domains[0].sans=[[ .app.guacamole.traefik.domain ]]",
         ]
         check {
           type     = "http"
@@ -52,9 +54,6 @@ job "guacamole" {
 
       resources {
         memory = 512
-        network {
-          port "http" { static = 8181 }
-        }
       }
     }
   }

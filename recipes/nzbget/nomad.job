@@ -5,42 +5,47 @@ job "nzbget" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.nzbget.node ]]"
+    operator  = "[[ .app.nzbget.constraints.operator ]]"
+    value     = "[[ .app.nzbget.constraints.node ]]"
   }
 
   group "nzbget" {
     count = 1
+
+    network {
+      port "http" { static = 6789 }
+    }
 
     task "nzbget" {
       driver = "docker"
 
       config {
         image        = "linuxserver/nzbget:v21.0-ls67"
-        force_pull   = "false"
         network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.nzbget.config ]]:/config",
-          "[[ .app.nzbget.downloads ]]:/downloads"
+          "[[ .app.nzbget.volumes.config ]]:/config",
+          "[[ .app.nzbget.volumes.downloads ]]:/downloads"
         ]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
         port = "http"
-        name = "${NOMAD_TASK_NAME}"
+        name = "nzbget"
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.nzbget_http.entrypoints=http",
+          "traefik.http.routers.nzbget_http.middlewares=httpsRedirect",
+          "traefik.http.routers.nzbget_http.rule=Host(`[[ .app.nzbget.traefik.domain ]]`)",
+          "traefik.http.routers.nzbget_https.entrypoints=https",
+          "traefik.http.routers.nzbget_https.rule=Host(`[[ .app.nzbget.traefik.domain ]]`)",
+          "traefik.http.routers.nzbget_https.tls.domains[0].sans=[[ .app.nzbget.traefik.domain ]]",
         ]
         check {
           type     = "http"
@@ -53,9 +58,6 @@ job "nzbget" {
       resources {
         cpu    = 1024
         memory = 1024
-        network {
-          port "http" { static = 6789 }
-        }
       }
     }
   }

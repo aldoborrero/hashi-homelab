@@ -5,22 +5,27 @@ job "grafana" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.grafana.node ]]"
+    operator  = "[[ .app.grafana.constraints.operator ]]"
+    value     = "[[ .app.grafana.constraints.node ]]"
   }
 
   group "grafana" {
     count = 1
 
+    network {
+      port "http" { static = 3000 }
+    }
+
     task "grafana" {
       driver = "docker"
 
       config {
-        image = "grafana/grafana:7.3.7"
-        force_pull   = "false"
+        image        = "grafana/grafana:7.3.7"
         network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.grafana.config ]]:/etc/grafana/",
-          "[[ .app.grafana.data ]]:/var/lib/grafana",
+          "[[ .app.grafana.volumes.config ]]:/etc/grafana/",
+          "[[ .app.grafana.volumes.data ]]:/var/lib/grafana",
         ]
       }
 
@@ -38,12 +43,12 @@ job "grafana" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.grafana_http.entrypoints=http",
+          "traefik.http.routers.grafana_http.middlewares=httpsRedirect",
+          "traefik.http.routers.grafana_http.rule=Host(`[[ .app.grafana.traefik.domain ]]`)",
+          "traefik.http.routers.grafana_https.entrypoints=https",
+          "traefik.http.routers.grafana_https.rule=Host(`[[ .app.grafana.traefik.domain ]]`)",
+          "traefik.http.routers.grafana_https.tls.domains[0].sans=[[ .app.grafana.traefik.domain ]]",
         ]
         check {
           type     = "http"
@@ -56,9 +61,6 @@ job "grafana" {
       resources {
         cpu    = 100
         memory = 128
-        network {
-          port "http" { static = 3000 }
-        }
       }
     }
   }

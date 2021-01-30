@@ -5,20 +5,24 @@ job "postgres" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.postgres.node ]]"
+    operator  = "[[ .app.postgres.constraints.operator ]]"
+    value     = "[[ .app.postgres.constraints.node ]]"
   }
 
   group "postgres" {
+
+    network {
+      port "db" { static = 5432 }
+    }
 
     task "postgres" {
       driver = "docker"
 
       config {
-        image = "postgres:12"
+        image        = "postgres:12"
         network_mode = "host"
-        volumes = [
-          "[[ .app.postgres.data ]]:/var/lib/postgresql/data",
-        ]
+        ports        = ["db"]
+        volumes      = ["[[ .app.postgres.volumes.data ]]:/var/lib/postgresql/data"]
       }
 
       env {
@@ -28,8 +32,7 @@ job "postgres" {
       }
 
       service {
-        name = "${NOMAD_JOB_NAME}"
-        tags = ["postgres"]
+        name = "postgres"
         port = "db"
         check {
           type     = "tcp"
@@ -42,9 +45,6 @@ job "postgres" {
       resources {
         cpu    = 1024
         memory = 1024
-        network {
-          port "db" { static = 5432 }
-        }
       }
     }
   }

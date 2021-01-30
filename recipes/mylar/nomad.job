@@ -6,23 +6,27 @@ job "mylar" {
   group "mylar" {
     count = 1
 
+    network {
+      port "http" { static = 8090 }
+    }
+
     task "mylar" {
       driver = "docker"
 
       config {
         image        = "linuxserver/mylar3:version-v0.4.9.3"
-        force_pull   = "false"
         network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.mylar.config ]]:/config",
-          "[[ .app.mylar.downloads ]]:/downloads",
-          "[[ .app.mylar.comics ]]:/comics",
+          "[[ .app.mylar.volumes.config ]]:/config",
+          "[[ .app.mylar.volumes.downloads ]]:/downloads",
+          "[[ .app.mylar.volumes.comics ]]:/comics",
         ]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
@@ -31,12 +35,12 @@ job "mylar" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.mylar_http.entrypoints=http",
+          "traefik.http.routers.mylar_http.middlewares=httpsRedirect",
+          "traefik.http.routers.mylar_http.rule=Host(`[[ .app.mylar.traefik.domain ]]`)",
+          "traefik.http.routers.mylar_https.entrypoints=https",
+          "traefik.http.routers.mylar_https.rule=Host(`[[ .app.mylar.traefik.domain ]]`)",
+          "traefik.http.routers.mylar_https.tls.domains[0].sans=[[ .app.mylar.traefik.domain ]]",
         ]
         check {
           type     = "http"
@@ -49,9 +53,6 @@ job "mylar" {
       resources {
         cpu    = 100
         memory = 256
-        network {
-          port "http" { static = 8090 }
-        }
       }
     }
   }

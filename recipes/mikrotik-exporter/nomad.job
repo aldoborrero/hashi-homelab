@@ -3,8 +3,18 @@ job "mikrotik-exporter" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "[[ .app.mikrotik.constraints.operator ]]"
+    value     = "[[ .app.mikrotik.constraints.node ]]"
+  }
+
   group "networking" {
     count = 1
+
+    network {
+      port "http" { static = "9436" }
+    }
 
     task "mikrotik-exporter" {
       driver = "docker"
@@ -12,6 +22,7 @@ job "mikrotik-exporter" {
       config {
         image        = "nshttpd/mikrotik-exporter:1.0.12-DEVEL"
         network_mode = "host"
+        ports        = ["http"]
       }
 
       env {
@@ -52,9 +63,6 @@ EOF
       resources {
         cpu    = 100
         memory = 128
-        network {
-          port "http" { static = "9436" }
-        }
       }
     }
   }

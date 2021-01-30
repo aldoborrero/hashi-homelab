@@ -5,29 +5,36 @@ job "deluge" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.deluge.node ]]"
+    operator  = "[[ .app.deluge.constraints.operator ]]"
+    value     = "[[ .app.deluge.constraints.node ]]"
   }
 
   group "deluge" {
     count = 1
+
+    network {
+      port "http" { static = 8112 }
+      port "tcp1" { static = 58846 }
+      port "tcp2" { static = 58946 }
+    }
 
     task "deluge" {
       driver = "docker"
 
       config {
         image        = "linuxserver/deluge:version-2.0.3-2201906121747ubuntu18.04.1"
-        force_pull   = "false"
         network_mode = "host"
+        ports        = ["http", "tcp1", "tcp2"]
         privileged   = "true"
         volumes = [
-          "[[ .app.deluge.config ]]:/config",
-          "[[ .app.deluge.downloads ]]:/downloads",
+          "[[ .app.deluge.volumes.config ]]:/config",
+          "[[ .app.deluge.volumes.downloads ]]:/downloads",
         ]
       }
 
       env {
-        PGID      = "1001"
-        PUID      = "1001"
+        PUID      = "[[ .common.env.puid ]]"
+        PGID      = "[[ .common.env.pgid ]]"
         TZ        = "UTC"
         UMASK_SET = "18"
       }
@@ -38,12 +45,12 @@ job "deluge" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.deluge_http.entrypoints=http",
+          "traefik.http.routers.deluge_http.middlewares=httpsRedirect",
+          "traefik.http.routers.deluge_http.rule=Host(`[[ .app.deluge.traefik.domain ]]`)",
+          "traefik.http.routers.deluge_https.entrypoints=https",
+          "traefik.http.routers.deluge_https.rule=Host(`[[ .app.deluge.traefik.domain ]]`)",
+          "traefik.http.routers.deluge_https.tls.domains[0].sans=[[ .app.deluge.traefik.domain ]]",
         ]
         check {
           type     = "http"
@@ -56,12 +63,6 @@ job "deluge" {
       resources {
         cpu    = 256
         memory = 256
-
-        network {
-          port "http" { static = 8112 }
-          port "tcp1" { static = 58846 }
-          port "tcp2" { static = 58946 }
-        }
       }
     }
   }

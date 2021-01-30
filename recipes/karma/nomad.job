@@ -3,8 +3,18 @@ job "karma" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "[[ .app.karma.constraints.operator ]]"
+    value     = "[[ .app.karma.constrains.node ]]"
+  }
+
   group "karma" {
     count = 1
+
+    network {
+      port "http" {}
+    }
 
     task "karma" {
       driver = "docker"
@@ -12,13 +22,13 @@ job "karma" {
       config {
         image        = "lmierzwa/karma:v0.78"
         network_mode = "host"
-        force_pull   = false
+        ports        = ["http"]
       }
 
       env {
         HOST               = "${NOMAD_IP_http}"
         PORT               = "${NOMAD_PORT_http}"
-        ALERTMANAGER_URI   = "https://${NOMAD_TASK_NAME}[[ .tld ]]"
+        ALERTMANAGER_URI   = "https://[[ .app.karma.traefik.domain ]]"
         ALERTMANAGER_PROXY = "true"
       }
 
@@ -28,12 +38,12 @@ job "karma" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.karma_http.entrypoints=http",
+          "traefik.http.routers.karma_http.middlewares=httpsRedirect",
+          "traefik.http.routers.karma_http.rule=Host(`[[ .app.karma.traefik.domain ]]`)",
+          "traefik.http.routers.karma_https.entrypoints=https",
+          "traefik.http.routers.karma_https.rule=Host(`[[ .app.karma.traefik.domain ]]`)",
+          "traefik.http.routers.karma_https.tls.domains[0].sans=[[ .app.karma.traefik.domain ]]",
         ]
         check {
           type     = "http"
@@ -46,9 +56,6 @@ job "karma" {
       resources {
         cpu    = 20
         memory = 24
-        network {
-          port "http" {}
-        }
       }
     }
   }

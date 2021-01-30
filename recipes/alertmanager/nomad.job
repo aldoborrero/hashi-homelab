@@ -5,7 +5,8 @@ job "alertmanager" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.alertmanager.node ]]"
+    operator  = "[[ .app.alertmanager.constraints.operator ]]"
+    value     = "[[ .app.alertmanager.constraints.node ]]"
   }
 
   update {
@@ -20,16 +21,20 @@ job "alertmanager" {
       sticky = true
     }
 
+    network {
+      port "http" { static = 9093 }
+    }
+
     task "alertmanager" {
       driver = "docker"
 
       config {
         image        = "prom/alertmanager:v0.21.0"
         network_mode = "host"
-        force_pull   = false
+        ports        = ["http"]
         args = [
           "--web.external-url",
-          "https://${NOMAD_TASK_NAME}[[ .tld ]]",
+          "https://[[ .app.alertmanager.traefik.domain ]]",
           "--config.file",
           "/local/config.yml",
           "--storage.path",
@@ -45,19 +50,29 @@ job "alertmanager" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.alertmanager_http.entrypoints=http",
+          "traefik.http.routers.alertmanager_http.middlewares=httpsRedirect",
+          "traefik.http.routers.alertmanager_http.rule=Host(`[[ .app.alertmanager.traefik.domain ]]`)",
+          "traefik.http.routers.alertmanager_https.entrypoints=https",
+          "traefik.http.routers.alertmanager_https.rule=Host(`[[ .app.alertmanager.traefik.domain ]]`)",
+          "traefik.http.routers.alertmanager_https.tls.domains[0].sans=[[ .app.alertmanager.traefik.domain ]]",
         ]
         check {
           type     = "tcp"
           port     = "http"
-          interval = "10s"
+          interval = "60s"
           timeout  = "2s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
       }
 
       template {
@@ -78,16 +93,6 @@ EOH
         left_delimiter  = "{{{{"
         right_delimiter = "}}}}"
       }
-
-      resources {
-        cpu    = 100
-        memory = 128
-
-        network {
-          port "http" { static = 9093 }
-        }
-      }
     }
-
   }
 }

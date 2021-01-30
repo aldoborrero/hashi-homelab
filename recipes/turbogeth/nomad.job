@@ -6,7 +6,8 @@ job "turbogeth" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.turbogeth.node ]]"
+    operator  = "[[ .app.turbogeth.constraints.operator ]]"
+    value     = "[[ .app.turbogeth.constraints.node ]]"
   }
 
   update {
@@ -16,6 +17,11 @@ job "turbogeth" {
 
   group "turbogeth" {
     count = 1
+
+    network {
+      port "p2p" { static = 30303 }
+      port "metrics" { static = 6060 }
+    }
 
     reschedule {
       delay          = "120s"
@@ -37,9 +43,8 @@ job "turbogeth" {
         ]
         force_pull   = "true"
         network_mode = "host"
-        volumes = [
-          "[[ .app.turbogeth.data ]]:/root/.local/share/turbogeth",
-        ]
+        ports        = ["p2p", "metrics"]
+        volumes      = ["[[ .app.turbogeth.volumes.data ]]:/root/.local/share/turbogeth"]
       }
 
       service {
@@ -56,10 +61,6 @@ job "turbogeth" {
       resources {
         cpu    = 2048
         memory = 8192
-        network {
-          port "p2p" { static = 30303 }
-          port "metrics" { static = 6060 }
-        }
       }
     }
   }

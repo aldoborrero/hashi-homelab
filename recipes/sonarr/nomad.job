@@ -5,7 +5,8 @@ job "sonarr" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.sonarr.node ]]"
+    operator  = "[[ .app.sonarr.constraints.operator ]]"
+    value     = "[[ .app.sonarr.constraints.node ]]"
   }
 
   group "sonarr" {
@@ -14,20 +15,24 @@ job "sonarr" {
     task "sonarr" {
       driver = "docker"
 
+      network {
+        port "http" { static = 8989 }
+      }
+
       config {
-        image        = "linuxserver/sonarr:5.14"
-        force_pull   = "false"
+        image        = "linuxserver/sonarr:preview-3.0.4.1069-ls28"
         network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.sonarr.config ]]:/config",
-          "[[ .app.sonarr.downloads ]]:/downloads",
-          "[[ .app.sonarr.tv ]]:/tv",
+          "[[ .app.sonarr.volumes.config ]]:/config",
+          "[[ .app.sonarr.volumes.downloads ]]:/downloads",
+          "[[ .app.sonarr.volumes.tv ]]:/tv",
         ]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
@@ -36,26 +41,28 @@ job "sonarr" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.sonarr_http.entrypoints=http",
+          "traefik.http.routers.sonarr_http.middlewares=httpsRedirect",
+          "traefik.http.routers.sonarr_http.rule=Host(`[[ .app.sonarr.traefik.domain ]]`)",
+          "traefik.http.routers.sonarr_https.entrypoints=https",
+          "traefik.http.routers.sonarr_https.rule=Host(`[[ .app.sonarr.traefik.domain ]]`)",
+          "traefik.http.routers.sonarr_https.tls.domains[0].sans=[[ .app.sonarr.traefik.domain ]]",
         ]
         check {
           type     = "http"
           path     = "/"
-          interval = "10s"
-          timeout  = "2s"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         memory = 512
-        network {
-          port "http" { static = 8989 }
-        }
       }
     }
   }

@@ -6,14 +6,17 @@ job "miniflux" {
   group "miniflux" {
     count = 1
 
+    network {
+      port "http" { static = 8585 }
+    }
+
     task "miniflux" {
       driver = "docker"
 
       config {
         image        = "miniflux/miniflux:2.0.27"
-        force_pull   = "false"
         network_mode = "host"
-        volumes = []
+        ports        = ["http"]
       }
 
       env {
@@ -27,12 +30,12 @@ job "miniflux" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.miniflux_http.entrypoints=http",
+          "traefik.http.routers.miniflux_http.middlewares=httpsRedirect",
+          "traefik.http.routers.miniflux_http.rule=Host(`[[ .app.miniflux.traefik.domain ]]`)",
+          "traefik.http.routers.miniflux_https.entrypoints=https",
+          "traefik.http.routers.miniflux_https.rule=Host(`[[ .app.miniflux.traefik.domain ]]`)",
+          "traefik.http.routers.miniflux_https.tls.domains[0].sans=[[ .app.miniflux.traefik.domain ]]",
         ]
         check {
           type     = "http"
@@ -45,9 +48,6 @@ job "miniflux" {
       resources {
         cpu    = 100
         memory = 256
-        network {
-          port "http" { static = 8585 }
-        }
       }
     }
   }

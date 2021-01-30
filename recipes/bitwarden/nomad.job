@@ -6,27 +6,29 @@ job "bitwarden" {
   group "bitwarden" {
     count = 1
 
+    network {
+      port "http" { static = 8585 }
+    }
+
     task "bitwarden" {
       driver = "docker"
 
       config {
         image        = "bitwardenrs/server-postgresql:1.18.0"
-        force_pull   = "false"
         network_mode = "host"
-        volumes = [
-          "[[ .app.bitwarden.data ]]:/data",
-        ]
+        ports        = ["http"]
+        volumes      = ["[[ .app.bitwarden.volumes.data ]]:/data"]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
-        DATABASE_URL = "postgresql://bitwarden:bitwarden@postgres.service.consul/bitwarden?sslmode=disable"
-        ENABLE_DB_WAL = "false"
-        ROCKET_PORT = "8585"
+        PUID                = "[[ .common.env.puid ]]"
+        PGID                = "[[ .common.env.pgid ]]"
+        DATABASE_URL        = "postgresql://bitwarden:bitwarden@postgres.service.consul/bitwarden?sslmode=disable"
+        ENABLE_DB_WAL       = "false"
+        ROCKET_PORT         = "8585"
         SHOW_PASSWORD_HINTS = "false"
-        WEB_VAULT_ENABLED = "true"
-        DATA_FOLDER = "/data"
+        WEB_VAULT_ENABLED   = "true"
+        DATA_FOLDER         = "/data"
       }
 
       service {
@@ -35,27 +37,29 @@ job "bitwarden" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.bitwarden_http.entrypoints=http",
+          "traefik.http.routers.bitwarden_http.middlewares=httpsRedirect",
+          "traefik.http.routers.bitwarden_http.rule=Host(`[[ .app.bitwarden.traefik.domain ]]`)",
+          "traefik.http.routers.bitwarden_https.entrypoints=https",
+          "traefik.http.routers.bitwarden_https.rule=Host(`[[ .app.bitwarden.traefik.domain ]]`)",
+          "traefik.http.routers.bitwarden_https.tls.domains[0].sans=[[ .app.bitwarden.traefik.domain ]]",
         ]
         check {
           type     = "http"
           path     = "/"
-          interval = "10s"
-          timeout  = "2s"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         cpu    = 100
         memory = 256
-        network {
-          port "http" { static = 8585 }
-        }
       }
     }
   }

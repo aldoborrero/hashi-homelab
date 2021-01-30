@@ -1,133 +1,310 @@
-region: home
-datacenter: dc1
-tld: .home
+nomad:
+  region: home
+  datacenter: dc1
+
+common:
+  env:
+    puid: 1000
+    pgid: 1000
 
 app:
   alertmanager:
-    node: nomad-2
+    constraints:
+      operator: =
+      node: nomad-2
+    traefik:
+      domain: alertmanager.home
+
+  aleth:
+    traefik:
+      domain: aleth.home
 
   bazarr:
-    node: nomad-3
-    config: /mnt/disks/sdb/bazarr
-    downloads: /mnt/media/downloads
-    movies: /mnt/media/movies
-    tv: /mnt/media/tv-shows
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      config: /mnt/disks/sdb/bazarr
+      downloads: /mnt/media/downloads/complete
+      movies: /mnt/media/movies
+      tv: /mnt/media/tv-shows
+    traefik:
+      domain: bazarr.home
 
   besu:
-    node: nomad-1
-    data: /mnt/disks/sdb/besu/mainnet_fast
+    constraints:
+      operator: =
+      node: nomad-1
+    volumes:
+      data: /mnt/disks/sdb/besu/mainnet_fast
 
   bitwarden:
-    data: /mnt/services/bitwarden
+    volumes:
+      data: /mnt/services/bitwarden
+    traefik:
+      domain: bitwarden.home
 
   calibre:
-    node: nomad-3
-    config: /mnt/disks/sdb/calibre
-    books: /mnt/media/books
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      config: /mnt/disks/sdb/calibre
+      books: /mnt/media/books
+    traefik:
+      domain: calibre.home
 
   deluge:
-    node: nomad-2
-    config: /mnt/services/deluge
-    downloads: /mnt/media/downloads
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      config: /mnt/services/deluge
+      downloads: /mnt/media/downloads
+    traefik:
+      domain: deluge.home
 
   emby:
-    node: nomad-3
-    root: /mnt/media/
-    config: /mnt/disks/sdb/emby
-    transcode: /mnt/disks/sdb/emby/transcode
-    backups: /mnt/services/emby
-
-  guacamole:
-    node: nomad-3
-    config: /mnt/disks/sdb/guacamole
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      root: /mnt/media/
+      config: /mnt/disks/sdb/emby
+      transcode: /mnt/disks/sdb/emby/transcode
+      backups: /mnt/services/emby
+    traefik:
+      domain: emby.home
 
   grafana:
-    node: nomad-2
-    config: /mnt/services/grafana
-    data: /mnt/disks/sdb/grafana
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      config: /mnt/services/grafana
+      data: /mnt/disks/sdb/grafana
+    traefik:
+      domain: grafana.home
+
+  guacamole:
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      config: /mnt/disks/sdb/guacamole
+    traefik:
+      domain: guacamole.home
 
   heimdall:
-    config: /mnt/services/heimdall
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      config: /mnt/disks/sdb/heimdall
+    traefik:
+      domain: in.home
 
   jackett:
-    config: /mnt/services/jackett
+    constraints:
+      operator: !=
+      node: nomad-1
+    volumes:
+      config: /mnt/services/jackett
+    traefik:
+      domain: jackett.home
+
+  karma:
+    constraints:
+      operator: !=
+      node: nomad-1
+    traefik:
+      domain: karma.home
 
   loki:
-    node: nomad-2
-    data: /mnt/disks/sdb/loki
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      data: /mnt/disks/sdb/loki
+
+  medusa:
+    constraints:
+      operator: !=
+      node: nomad-1
+    volumes:
+      config: /mnt/disks/sdb/medusa
+      downloads: /mnt/media/downloads/complete
+      tv: /mnt/media/tv-shows
+    traefik:
+      domain: medusa.home
+
+  mikrotik:
+    constraints:
+      operator: !=
+      node: nomad-1
+
+  miniflux:
+    constraints:
+      operator: !=
+      node: nomad-1
+    traefik:
+      domain: miniflux.home
 
   mylar:
-    node: nomad-3
-    config: /mnt/services/mylar
-    downloads: /mnt/media/downloads
-    comics: /mnt/media/comics
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      config: /mnt/services/mylar
+      downloads: /mnt/media/downloads/complete
+      comics: /mnt/media/comics
+    traefik:
+      domain: mylar.home
 
   mysql:
-    node: nomad-2
-    data: /mnt/disks/sdb/mysql
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      data: /mnt/disks/sdb/mysql
 
   nzbget:
-    node: nomad-2
-    config: /mnt/services/nzbget
-    downloads: /mnt/media/downloads
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      config: /mnt/services/nzbget
+      downloads: /mnt/media/downloads/complete
+    traefik:
+      domain: nzbget.home
 
   nzbhydra2:
-    config: /mnt/services/nzbhydra2
-    watch: /mnt/media/watch
+    constraints:
+      operator: !=
+      node: nomad-1
+    volumes:
+      config: /mnt/services/nzbhydra2
+      watch: /mnt/media/downloads/watch
+    traefik:
+      domain: nzbhydra2.home
+
+  pgweb:
+    constraints:
+      operator: !=
+      node: nomad-1
+    traefik:
+      domain: pgweb.home
 
   pihole:
-    node: nomad-3
-    config: /mnt/services/pihole
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      config: /mnt/services/pihole
+    traefik:
+      domain: pihole.home
 
   plex:
-    node: nomad-3
-    root: /mnt/media/
-    config: /mnt/disks/sdb/plex
-    transcode: /mnt/disks/sdb/plex/transcode
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      root: /mnt/media/
+      config: /mnt/disks/sdb/plex
+      transcode: /mnt/disks/sdb/plex/transcode
+    traefik:
+      domain: plex.home
 
   postgres:
-    node: nomad-2
-    data: /mnt/disks/sdb/postgres
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      data: /mnt/disks/sdb/postgres
 
   prometheus:
-    node: nomad-2
-    data: /mnt/disks/sdb/prometheus
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      data: /mnt/disks/sdb/prometheus
 
   radarr:
-    node: nomad-3
-    config: /mnt/disks/sdb/radarr
-    downloads: /mnt/media/downloads
-    movies: /mnt/media/movies
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      config: /mnt/disks/sdb/radarr
+      downloads: /mnt/media/downloads/complete
+      movies: /mnt/media/movies
+    traefik:
+      domain: radarr.home
 
   readarr:
-    node: nomad-3
-    config: /mnt/disks/sdb/readarr
-    downloads: /mnt/media/downloads
-    books: /mnt/media/books
-    audiobooks: /mnt/media/audiobooks
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      config: /mnt/disks/sdb/readarr
+      downloads: /mnt/media/downloads/complete
+      books: /mnt/media/books
+      audiobooks: /mnt/media/audiobooks
+    traefik:
+      domain: readarr.home
+
+  retroarch:
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      roms: /mnt/disks/sdb/roms
+    traefik:
+      domain: retroarch.home
 
   sabnzbd:
-    node: nomad-2
-    config: /mnt/services/sabnzbd
-    downloads: /mnt/media/downloads
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      config: /mnt/services/sabnzbd
+      downloads:
+        complete: /mnt/media/downloads/complete
+        incomplete: /mnt/media/downloads/incomplete
+    traefik:
+      domain: sabnzbd.home
 
   sonarr:
-    node: nomad-3
-    config: /mnt/disks/sdb/sonarr
-    downloads: /mnt/media/downloads
-    tv: /mnt/media/tv-shows
-
-  turbogeth:
-    node: nomad-1
-    data: /mnt/disks/sdb/turbogeth
-
-  transmission:
-    node: nomad-2
-    config: /mnt/services/transmission
-    watch: /mnt/media/watch
-    downloads: /mnt/media/downloads
-    incompleteDownloads: /mnt/media/incomplete-downloads
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      config: /mnt/disks/sdb/sonarr
+      downloads: /mnt/media/downloads/complete
+      tv: /mnt/media/tv-shows
+    traefik:
+      domain: sonarr.home
 
   traefik:
-    dynamic: /mnt/services/traefik/dynamic
-    certificates: /mnt/services/traefik/certificates
+    volumes:
+      dynamic: /mnt/services/traefik/dynamic
+      certificates: /mnt/services/traefik/certificates
+
+  transmission:
+    constraints:
+      operator: =
+      node: nomad-2
+    volumes:
+      config: /mnt/services/transmission
+      watch: /mnt/media/downloads/watch
+      downloads:
+        complete: /mnt/media/downloads/complete
+        incomplete: /mnt/media/downloads/incomplete
+    traefik:
+      domain: transmission.home
+
+  turbogeth:
+    constraints:
+      operator: =
+      node: nomad-1
+    volumes:
+      data: /mnt/disks/sdb/turbogeth

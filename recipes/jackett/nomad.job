@@ -3,24 +3,32 @@ job "jackett" {
   datacenters = ["[[ .datacenter ]]"]
   type        = "service"
 
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "[[ .app.jackket.constraints.operator ]]"
+    value     = "[[ .app.jackett.constraints.exclude ]]"
+  }
+
   group "jackett" {
     count = 1
+
+    network {
+      port "http" { static = 9117 }
+    }
 
     task "jackett" {
       driver = "docker"
 
       config {
         image        = "linuxserver/jackett:v0.17.261-ls15"
-        force_pull   = "false"
         network_mode = "host"
-        volumes = [
-          "[[ .app.jackett.config ]]:/config",
-        ]
+        ports        = ["http"]
+        volumes      = ["[[ .app.jackett.volumes.config ]]:/config"]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
@@ -29,12 +37,12 @@ job "jackett" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.jackett_http.entrypoints=http",
+          "traefik.http.routers.jackett_http.middlewares=httpsRedirect",
+          "traefik.http.routers.jackett_http.rule=Host(`[[ .app.jackett.traefik.domain ]]`)",
+          "traefik.http.routers.jackett_https.entrypoints=https",
+          "traefik.http.routers.jackett_https.rule=Host(`[[ .app.jackett.traefik.domain ]]`)",
+          "traefik.http.routers.jackett_https.tls.domains[0].sans=[[ .app.jackett.traefik.domain ]]",
         ]
         check {
           type     = "tcp"
@@ -46,9 +54,6 @@ job "jackett" {
       resources {
         cpu    = 100
         memory = 256
-        network {
-          port "http" { static = 9117 }
-        }
       }
     }
   }

@@ -6,18 +6,21 @@ job "aleth" {
   group "aleth" {
     count = 1
 
+    network {
+      port "http" { static = 8181 }
+    }
+
     task "aleth" {
       driver = "docker"
       config {
-        image        = "alethio/ethereum-lite-explorer:v1.0.0-beta.10"
-        force_pull   = "false"
-        port_map { http = 80 }
+        image = "alethio/ethereum-lite-explorer:v1.0.0-beta.10"
+        ports = ["http"]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
-        APP_NODE_URL="http://besu.service.consul:8545"
+        PUID         = "[[ .common.env.puid ]]"
+        PGID         = "[[ .common.env.pgid ]]"
+        APP_NODE_URL = "http://besu.service.consul:8545"
       }
 
       service {
@@ -25,22 +28,24 @@ job "aleth" {
         name = "aleth"
         tags = [
           "traefik.enable=true",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)"
+          "traefik.http.routers.aleth_http.entrypoints=http",
+          "traefik.http.routers.aleth_http.rule=Host(`[[ .app.aleth.traefik.domain ]]`)"
         ]
         check {
           type     = "tcp"
-          interval = "10s"
+          interval = "60s"
           timeout  = "2s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         cpu    = 100
         memory = 256
-        network {
-          port "http" { static = 8181 }
-        }
       }
     }
   }

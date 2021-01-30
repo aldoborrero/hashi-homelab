@@ -5,29 +5,34 @@ job "radarr" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.radarr.node ]]"
+    operator  = "[[ .app.radarr.constraints.operator ]]"
+    value     = "[[ .app.radarr.constraints.node ]]"
   }
 
   group "radarr" {
     count = 1
+
+    network {
+      port "http" { static = 7878 }
+    }
 
     task "radarr" {
       driver = "docker"
 
       config {
         image        = "linuxserver/radarr:3.0.1.4259-ls89"
-        force_pull   = "false"
         network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.radarr.config ]]:/config",
-          "[[ .app.radarr.downloads ]]:/downloads",
-          "[[ .app.radarr.movies ]]:/movies",
+          "[[ .app.radarr.volumes.config ]]:/config",
+          "[[ .app.radarr.volumes.downloads ]]:/downloads",
+          "[[ .app.radarr.volumes.movies ]]:/movies",
         ]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
@@ -36,26 +41,28 @@ job "radarr" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.radarr_http.entrypoints=http",
+          "traefik.http.routers.radarr_http.middlewares=httpsRedirect",
+          "traefik.http.routers.radarr_http.rule=Host(`[[ .app.radarr.traefik.domain ]]`)",
+          "traefik.http.routers.radarr_https.entrypoints=https",
+          "traefik.http.routers.radarr_https.rule=Host(`[[ .app.radarr.traefik.domain ]]`)",
+          "traefik.http.routers.radarr_https.tls.domains[0].sans=[[ .app.radarr.traefik.domain ]]",
         ]
         check {
           type     = "http"
           path     = "/"
-          interval = "10s"
-          timeout  = "2s"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         memory = 512
-        network {
-          port "http" { static = 7878 }
-        }
       }
     }
   }

@@ -1,0 +1,74 @@
+job "medusa" {
+  region      = "[[ .region ]]"
+  datacenters = ["[[ .datacenter ]]"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "[[ .app.medusa.constraints.operator ]]"
+    value     = "[[ .app.medusa.constraints.node ]]"
+  }
+
+  update {
+    stagger      = "10s"
+    max_parallel = 1
+  }
+
+  group "medusa" {
+    count = 1
+
+    network {
+      port "http" { to = 8081 }
+    }
+
+    task "medusa" {
+      driver = "docker"
+
+      config {
+        image   = "linuxserver/medusa:version-v0.5.4"
+        ports   = ["http"]
+        volumes = [
+          "[[ .app.medusa.volumes.config ]]:/config",
+          "[[ .app.medusa.volumes.downloads ]]:/downloads",
+          "[[ .app.medusa.volumes.movies ]]:/movies",
+        ]
+      }
+
+      env {
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
+      }
+
+      service {
+        port = "http"
+        name = "medusa"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.medusa_http.entrypoints=http",
+          "traefik.http.routers.medusa_http.middlewares=httpsRedirect",
+          "traefik.http.routers.medusa_http.rule=Host(`[[ .app.medusa.traefik.domain ]]`)",
+          "traefik.http.routers.medusa_https.entrypoints=https",
+          "traefik.http.routers.medusa_https.rule=Host(`[[ .app.medusa.traefik.domain ]]`)",
+          "traefik.http.routers.medusa_https.tls.domains[0].sans=[[ .app.medusa.traefik.domain ]]",
+        ]
+
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
+        }
+      }
+
+      resources {
+        memory = 512
+      }
+    }
+  }
+}

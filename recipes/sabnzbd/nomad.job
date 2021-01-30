@@ -5,57 +5,65 @@ job "sabnzbd" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.sabnzbd.node ]]"
+    operator  = "[[ .app.sabnzbd.constraints.operator ]]"
+    value     = "[[ .app.sabnzbd.constraints.node ]]"
   }
 
   group "sabnzbd" {
     count = 1
+
+    network {
+      port "http" { static = 8080 }
+    }
 
     task "sabnzbd" {
       driver = "docker"
 
       config {
         image        = "linuxserver/sabnzbd:3.1.1-ls9"
-        force_pull   = "false"
         network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.sabnzbd.config ]]:/config",
-          "[[ .app.sabnzbd.downloads ]]:/downloads"
+          "[[ .app.sabnzbd.volumes.config ]]:/config",
+          "[[ .app.sabnzbd.volumes.downloads.complete ]]:/downloads",
+          "[[ .app.sabnzbd.volumes.downloads.incomplete ]]:/incomplete-downloads"
         ]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
+        name = "sabnzbd"
         port = "http"
-        name = "${NOMAD_TASK_NAME}"
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.sabnzbd_http.entrypoints=http",
+          "traefik.http.routers.sabnzbd_http.middlewares=httpsRedirect",
+          "traefik.http.routers.sabnzbd_http.rule=Host(`[[ .app.sabnzbd.traefik.domain ]]`)",
+          "traefik.http.routers.sabnzbd_https.entrypoints=https",
+          "traefik.http.routers.sabnzbd_https.rule=Host(`[[ .app.sabnzbd.traefik.domain ]]`)",
+          "traefik.http.routers.sabnzbd_https.tls.domains[0].sans=[[ .app.sabnzbd.traefik.domain ]]",
         ]
         check {
-          type     = "http"
-          path     = "/"
-          interval = "10s"
-          timeout  = "2s"
+          type     = "tcp"
+          port     = "http"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         cpu    = 1024
         memory = 1024
-        network {
-          port "http" { static = 8080 }
-        }
       }
     }
   }

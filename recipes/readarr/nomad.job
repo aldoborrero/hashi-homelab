@@ -5,11 +5,16 @@ job "readarr" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.readarr.node ]]"
+    operator  = "[[ .app.readarr.constraints.operator ]]"
+    value     = "[[ .app.readarr.constraints.node ]]"
   }
 
   group "readarr" {
     count = 1
+
+    network {
+      port "http" { static = 8787 }
+    }
 
     task "readarr" {
       driver = "docker"
@@ -18,17 +23,18 @@ job "readarr" {
         image        = "hotio/readarr:nightly"
         force_pull   = "true"
         network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.readarr.config ]]:/config",
-          "[[ .app.readarr.books ]]:/books",
-          "[[ .app.readarr.audiobooks ]]:/audiobooks",
-          "[[ .app.readarr.downloads ]]:/downloads",
+          "[[ .app.readarr.volumes.config ]]:/config",
+          "[[ .app.readarr.volumes.books ]]:/books",
+          "[[ .app.readarr.volumes.audiobooks ]]:/audiobooks",
+          "[[ .app.readarr.volumes.downloads ]]:/downloads",
         ]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
@@ -37,27 +43,29 @@ job "readarr" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.readarr_http.entrypoints=http",
+          "traefik.http.routers.readarr_http.middlewares=httpsRedirect",
+          "traefik.http.routers.readarr_http.rule=Host(`[[ .app.readarr.traefik.domain ]]`)",
+          "traefik.http.routers.readarr_https.entrypoints=https",
+          "traefik.http.routers.readarr_https.rule=Host(`[[ .app.readarr.traefik.domain ]]`)",
+          "traefik.http.routers.readarr_https.tls.domains[0].sans=[[ .app.readarr.traefik.domain ]]",
         ]
         check {
           type     = "http"
           path     = "/"
-          interval = "10s"
-          timeout  = "2s"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         cpu    = 100
         memory = 128
-        network {
-          port "http" { static = 8787 }
-        }
       }
     }
   }

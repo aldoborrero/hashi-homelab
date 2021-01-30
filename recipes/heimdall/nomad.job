@@ -1,26 +1,52 @@
 job "heimdall" {
   region      = "[[ .region ]]"
   datacenters = ["[[ .datacenter ]]"]
-  type        = "service"
+
+  type = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "[[ .app.heimdall.constraints.operator ]]"
+    value     = "[[ .app.heimdall.constraints.node ]]"
+  }
+
+  update {
+    max_parallel      = 1
+    health_check      = "checks"
+    min_healthy_time  = "10s"
+    healthy_deadline  = "5m"
+    progress_deadline = "10m"
+    auto_revert       = true
+    canary            = 0
+    stagger           = "30s"
+  }
+
+  reschedule {
+    delay          = "30s"
+    delay_function = "constant"
+    unlimited      = true
+  }
 
   group "heimdall" {
     count = 1
+
+    network {
+      port "http" { to = 80 }
+      port "https" { to = 443 }
+    }
 
     task "heimdall" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/heimdall:version-2.2.2"
-        force_pull   = "false"
-        volumes = [
-          "[[ .app.heimdall.config ]]:/config"
-        ]
-        port_map { db = 80 }
+        image   = "linuxserver/heimdall:version-2.2.2"
+        ports   = ["http"]
+        volumes = ["[[ .app.heimdall.volumes.config ]]:/config"]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
@@ -29,27 +55,29 @@ job "heimdall" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`in[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`in[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=in[[ .tld ]]",
+          "traefik.http.routers.heimdall_http.entrypoints=http",
+          "traefik.http.routers.heimdall_http.middlewares=httpsRedirect",
+          "traefik.http.routers.heimdall_http.rule=Host(`[[ .app.heimdall.traefik.domain ]]`)",
+          "traefik.http.routers.heimdall_https.entrypoints=https",
+          "traefik.http.routers.heimdall_https.rule=Host(`in[[ .app.heimdall.traefik.domain ]]`)",
+          "traefik.http.routers.heimdall_https.tls.domains[0].sans=in[[ .app.heimdall.traefik.domain ]]",
         ]
         check {
           type     = "http"
           path     = "/"
-          interval = "10s"
-          timeout  = "2s"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         cpu    = 100
         memory = 128
-        network {
-          port "http" { static = 9191 }
-        }
       }
     }
   }

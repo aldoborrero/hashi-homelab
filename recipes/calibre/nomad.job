@@ -5,28 +5,35 @@ job "calibre" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.calibre.node ]]"
+    operator  = "[[ .app.calibre.constrains.operator ]]"
+    value     = "[[ .app.calibre.constraints.node ]]"
   }
 
   group "calibre" {
     count = 1
 
+    network {
+      port "http" { static = 8083 }
+    }
+
     task "calibre" {
       driver = "docker"
 
       config {
-        image        = "technosoft2000/calibre-web:v1.5.0"
-        force_pull   = "false"
-        network_mode = "bridge"
+        image        = "linuxserver/calibre-web:version-0.6.10"
+        network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.calibre.config ]]:/config",
-          "[[ .app.calibre.books ]]:/books",
+          "[[ .app.calibre.volumes.config ]]:/config",
+          "[[ .app.calibre.volumes.books ]]:/books",
         ]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID           = "[[ .common.env.puid ]]"
+        PGID           = "[[ .common.env.pgid ]]"
+        CALIBRE_DBPATH = "/config"
+        DOCKER_MODS    = "linuxserver/calibre-web:calibre"
       }
 
       service {
@@ -35,18 +42,19 @@ job "calibre" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.calibre_http.entrypoints=http",
+          "traefik.http.routers.calibre_http.middlewares=httpsRedirect",
+          "traefik.http.routers.calibre_http.rule=Host(`[[ .app.calibre.traefik.domain ]]`)",
+          "traefik.http.routers.calibre_https.entrypoints=https",
+          "traefik.http.routers.calibre_https.rule=Host(`[[ .app.calibre.traefik.domain ]]`)",
+          "traefik.http.routers.calibre_https.tls.domains[0].sans=[[ .app.calibre.traefik.domain ]]",
         ]
         check {
           type     = "http"
           path     = "/"
-          interval = "10s"
-          timeout  = "5s"
+          interval = "60s"
+          timeout  = "20s"
+
           check_restart {
             limit = 3
             grace = "240s"
@@ -56,11 +64,6 @@ job "calibre" {
 
       resources {
         memory = 512
-        network {
-          port "http" {
-            to = 8585
-          }
-        }
       }
     }
   }

@@ -5,20 +5,24 @@ job "mysql" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.mysql.node ]]"
+    operator  = "[[ .app.mysql.constraints.operator ]]"
+    value     = "[[ .app.mysql.constraints.node ]]"
   }
 
   group "mysql" {
+
+    network {
+      port "db" { static = 3306 }
+    }
 
     task "mysql" {
       driver = "docker"
 
       config {
-        image = "mysql:8.0"
+        image        = "mysql:8.0"
         network_mode = "host"
-        volumes = [
-          "[[ .app.mysql.data ]]:/var/lib/mysql",
-        ]
+        ports        = ["db"]
+        volumes      = ["[[ .app.mysql.volumes.data ]]:/var/lib/mysql"]
       }
 
       env {
@@ -26,8 +30,7 @@ job "mysql" {
       }
 
       service {
-        name = "${NOMAD_JOB_NAME}"
-        tags = ["mysql"]
+        name = "mysql"
         port = "db"
         check {
           type     = "tcp"
@@ -40,9 +43,6 @@ job "mysql" {
       resources {
         cpu    = 1024
         memory = 1024
-        network {
-          port "db" { static = 3306 }
-        }
       }
     }
   }

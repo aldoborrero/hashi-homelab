@@ -5,29 +5,34 @@ job "bazarr" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.bazarr.node ]]"
+    operator  = "[[ .app.bazarr.constraints.operator ]]"
+    value     = "[[ .app.bazarr.constraints.node ]]"
   }
 
   group "bazarr" {
     count = 1
 
+    network {
+      port "http" { static = 6767 }
+    }
+
     task "bazarr" {
       driver = "docker"
       config {
         image        = "linuxserver/bazarr:v0.9.0.7-ls101"
-        force_pull   = "false"
         network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.bazarr.config ]]:/config",
-          "[[ .app.bazarr.downloads ]]:/downloads",
-          "[[ .app.bazarr.tv ]]:/tv",
-          "[[ .app.bazarr.movies ]]:/movies",
+          "[[ .app.bazarr.volumes.config ]]:/config",
+          "[[ .app.bazarr.volumes.downloads ]]:/downloads",
+          "[[ .app.bazarr.volumes.tv ]]:/tv",
+          "[[ .app.bazarr.volumes.movies ]]:/movies",
         ]
       }
 
       env {
-        PUID = 1000
-        PGID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
@@ -36,26 +41,28 @@ job "bazarr" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.bazarr_http.entrypoints=http",
+          "traefik.http.routers.bazarr_http.middlewares=httpsRedirect",
+          "traefik.http.routers.bazarr_http.rule=Host(`[[ .app.bazarr.traefik.domain ]]`)",
+          "traefik.http.routers.bazarr_https.entrypoints=https",
+          "traefik.http.routers.bazarr_https.rule=Host(`[[ .app.bazarr.traefik.domain ]]`)",
+          "traefik.http.routers.bazarr_https.tls.domains[0].sans=[[ .app.bazarr.traefik.domain ]]",
         ]
         check {
           type     = "tcp"
-          interval = "10s"
-          timeout  = "2s"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         cpu    = 100
         memory = 256
-        network {
-          port "http" { static = 6767 }
-        }
       }
     }
   }

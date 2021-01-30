@@ -5,31 +5,36 @@ job "emby" {
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    value     = "[[ .app.emby.node ]]"
+    operator  = "[[ .app.emby.constraints.operator ]]"
+    value     = "[[ .app.emby.contraints.node ]]"
   }
 
   group "emby" {
     count = 1
+
+    network {
+      port "http" { static = 8096 }
+    }
 
     task "emby" {
       driver = "docker"
 
       config {
         image        = "emby/embyserver:4.6.0.10"
-        network_mode = "host"
         privileged   = "true"
-        force_pull   = "false"
+        network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.emby.root ]]:/media",
-          "[[ .app.emby.config ]]:/config",
-          "[[ .app.emby.transcode ]]:/transcode",
-          "[[ .app.emby.backups ]]:/backups",
+          "[[ .app.emby.volumes.root ]]:/media",
+          "[[ .app.emby.volumes.config ]]:/config",
+          "[[ .app.emby.volumes.transcode ]]:/transcode",
+          "[[ .app.emby.volumes.backups ]]:/backups",
         ]
       }
 
       env {
-        UID = 1000
-        GID = 1000
+        PUID = "[[ .common.env.puid ]]"
+        PGID = "[[ .common.env.pgid ]]"
       }
 
       service {
@@ -38,26 +43,28 @@ job "emby" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.emby_http.entrypoints=http",
+          "traefik.http.routers.emby_http.middlewares=httpsRedirect",
+          "traefik.http.routers.emby_http.rule=Host(`[[ .app.emby.traefik.domain ]]`)",
+          "traefik.http.routers.emby_https.entrypoints=https",
+          "traefik.http.routers.emby_https.rule=Host(`[[ .app.emby.traefik.domain ]]`)",
+          "traefik.http.routers.emby_https.tls.domains[0].sans=[[ .app.emby.traefik.domain ]]",
         ]
         check {
           type     = "tcp"
-          interval = "10s"
-          timeout  = "2s"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         cpu    = 1024
         memory = 8192
-        network {
-          port "http" { static = 8096 }
-        }
       }
     }
   }

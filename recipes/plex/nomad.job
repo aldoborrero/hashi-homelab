@@ -11,18 +11,22 @@ job "plex" {
   group "plex" {
     count = 1
 
+    network {
+      port "http" { static = 32400 }
+    }
+
     task "plex" {
       driver = "docker"
 
       config {
         image        = "plexinc/pms-docker:1.21.1.3876-3c3adfcb4"
-        network_mode = "host"
         privileged   = "true"
-        force_pull   = "false"
+        network_mode = "host"
+        ports        = ["http"]
         volumes = [
-          "[[ .app.plex.config ]]:/config",
-          "[[ .app.plex.transcode ]]:/transcode",
-          "[[ .app.plex.root ]]:/data",
+          "[[ .app.plex.volumes.config ]]:/config",
+          "[[ .app.plex.volumes.transcode ]]:/transcode",
+          "[[ .app.plex.volumes.root ]]:/data",
         ]
       }
 
@@ -32,26 +36,28 @@ job "plex" {
         tags = [
           "traefik.enable=true",
           "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.entrypoints=http",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.middlewares=httpsRedirect",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_http.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.entrypoints=https",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.rule=Host(`${NOMAD_TASK_NAME}[[ .tld ]]`)",
-          "traefik.http.routers.${NOMAD_TASK_NAME}_https.tls.domains[0].sans=${NOMAD_TASK_NAME}[[ .tld ]]",
+          "traefik.http.routers.plex_http.entrypoints=http",
+          "traefik.http.routers.plex_http.middlewares=httpsRedirect",
+          "traefik.http.routers.plex_http.rule=Host(`[[ .app.plex.traefik.domain ]]`)",
+          "traefik.http.routers.plex_https.entrypoints=https",
+          "traefik.http.routers.plex_https.rule=Host(`[[ .app.plex.traefik.domain ]]`)",
+          "traefik.http.routers.plex_https.tls.domains[0].sans=[[ .app.plex.traefik.domain ]]",
         ]
         check {
           type     = "tcp"
-          interval = "10s"
-          timeout  = "2s"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
         }
       }
 
       resources {
         cpu    = 1024
         memory = 8192
-        network {
-          port "http" { static = 32400 }
-        }
       }
     }
   }

@@ -6,6 +6,12 @@ job "traefik" {
   group "traefik" {
     count = 1
 
+    network {
+      port "http" { static = 80 }
+      port "https" { static = 443 }
+      port "api" { static = 8081 }
+    }
+
     update {
       max_parallel     = 1
       min_healthy_time = "30s"
@@ -18,10 +24,11 @@ job "traefik" {
       config {
         image        = "traefik:v2.4"
         network_mode = "host"
+        ports        = ["http", "https", "api"]
         volumes = [
           "local/traefik.toml:/etc/traefik/traefik.toml",
-          "[[ .app.traefik.dynamic ]]:/etc/traefik/dynamic",
-          "[[ .app.traefik.certificates ]]:/etc/traefik/certificates",
+          "[[ .app.traefik.volumes.dynamic ]]:/etc/traefik/dynamic",
+          "[[ .app.traefik.volumes.certificates ]]:/etc/traefik/certificates",
         ]
       }
 
@@ -65,12 +72,6 @@ EOF
       resources {
         cpu    = 100
         memory = 128
-
-        network {
-          port "http" { static = 80 }
-          port "https" { static = 443 }
-          port "api" { static = 8081 }
-        }
       }
 
       service {
