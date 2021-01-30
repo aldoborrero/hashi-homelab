@@ -1,12 +1,12 @@
 job "emby" {
-  region      = "[[ .region ]]"
-  datacenters = ["[[ .datacenter ]]"]
+  region      = "[[ .nomad.region ]]"
+  datacenters = ["[[ .nomad.datacenter ]]"]
   type        = "service"
 
   constraint {
     attribute = "${attr.unique.hostname}"
     operator  = "[[ .app.emby.constraints.operator ]]"
-    value     = "[[ .app.emby.contraints.node ]]"
+    value     = "[[ .app.emby.constraints.node ]]"
   }
 
   group "emby" {

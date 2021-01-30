@@ -1,12 +1,12 @@
 job "besu" {
-  region      = "[[ .region ]]"
-  datacenters = ["[[ .datacenter ]]"]
+  region      = "[[ .nomad.region ]]"
+  datacenters = ["[[ .nomad.datacenter ]]"]
   type        = "service"
   priority    = 100
 
   constraint {
     attribute = "${attr.unique.hostname}"
-    operator  = "[[ .app.besu.contraints.operator ]]"
+    operator  = "[[ .app.besu.constraints.operator ]]"
     value     = "[[ .app.besu.constraints.node ]]"
   }
 

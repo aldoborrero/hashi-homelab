@@ -1,6 +1,6 @@
 job "sabnzbd" {
-  region      = "[[ .region ]]"
-  datacenters = ["[[ .datacenter ]]"]
+  region      = "[[ .nomad.region ]]"
+  datacenters = ["[[ .nomad.datacenter ]]"]
   type        = "service"
 
   constraint {
