@@ -268,7 +268,7 @@ app:
       operator: =
       node: nomad-2
     volumes:
-      config: /mnt/services/sabnzbd
+      config: /mnt/disks/sdb/sabnzbd
       downloads:
         complete: /mnt/media/downloads/complete
         incomplete: /mnt/media/downloads/incomplete
