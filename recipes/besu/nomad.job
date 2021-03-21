@@ -30,7 +30,7 @@ job "besu" {
       driver = "docker"
 
       config {
-        image        = "hyperledger/besu:20.10-graalvm"
+        image        = "hyperledger/besu:21.1-graalvm"
         network_mode = "host"
         ports        = ["p2p", "rpc", "rpc_ws", "rpc_gql"]
         volumes      = ["[[ .app.besu.volumes.data ]]:/var/lib/besu"]

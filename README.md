@@ -2,7 +2,7 @@
 
 ![Cluster](.assets/cluster.jpeg)
 
-`Hashi Homelab` is a collection of [`nomad`](https://www.nomadproject.io/) recipes related to several Open Source projects that I use on my own `nomad + consul + vault` + `Intel Nuc` cluster.
+`Hashi Homelab` is a collection of [`nomad`](https://www.nomadproject.io/) recipes related to several Open Source projects that I use on my own `Nomad + Consul + Vault` + `Intel Nuc` cluster.
 
 ## ✅ Supported services
 
@@ -17,7 +17,7 @@
 - [Grafana](https://github.com/grafana/grafana): The open and composable observability and data visualization platform. Visualize metrics, logs, and traces from multiple sources like Prometheus, Loki, Elasticsearch, InfluxDB, Postgres and many more.
 - [Guacamole](https://guacamole.apache.org/): Apache Guacamole is a clientless remote desktop gateway. It supports standard protocols like VNC, RDP, and SSH.
 - [Heimdall](https://github.com/linuxserver/Heimdall): An Application dashboard and launcher.
-- [Ipfs](https://github.com/ipfs/ipfs): Peer-to-peer hypermedia protocol.
+- [IPFS](https://github.com/ipfs/ipfs): Peer-to-peer hypermedia protocol.
 - [Jackett](https://github.com/Jackett/Jackett): API Support for your favorite torrent trackers.
 - [Karma](https://github.com/prymitive/karma): Alert dashboard for Prometheus Alertmanager.
 - [Loki](https://github.com/grafana/loki): Like Prometheus, but for logs.
@@ -26,7 +26,6 @@
 - [LazyLibrarian](https://lazylibrarian.gitlab.io/): LazyLibrarian is a program to follow authors and grab metadata for all your digital reading needs.
 - [Miniflux](https://github.com/swanson/miniflux): A self-hosted, anti-social RSS reader.
 - [Mylar](https://github.com/evilhero/mylar): An automated Comic Book downloader (cbr/cbz) for use with SABnzbd, NZBGet and torrents.
-- [Mysql](https://www.mysql.com/): What so say...
 - [n8n](https://n8n.io/): Extendable workflow automation.
 - [Nzbget](https://nzbget.net/): The most efficient usenet downloader.
 - [NzbHydra2](https://github.com/theotherp/nzbhydra2/): NZBHydra 2 is a meta search for newznab indexers and torznab trackers.
@@ -43,6 +42,44 @@
 - [Traefik](https://traefik.io/): A simple to use front-end proxy.
 - [Transmission](https://transmissionbt.com/): A fast, easy and free Bittorrent client.
 - [Turbogeth](https://github.com/ledgerwatch/turbo-geth): Turbo-Geth is a fork of Go-Ethereum with focus on performance. 
+
+**Note:** These services are configured towards my necessities so, make sure to review properly each service and adjust accordingly.
+
+## Packer
+
+Included in this repository there are two [`packer`](https://www.packer.io/) images:
+
+* `nomad`: Allows to configure a cluster of VM server / clients of Nomad clusters.
+* `wireguard`: Allows to configure easily a VM for Wireguard to have remote access.
+
+Both images utilizes [Packer's Proxmox builder](https://www.packer.io/docs/builders/proxmox/iso). If you wan't to build them, make sure you have configured correctly your `*.json` settings accordingly to your Proxmox machine.
+
+For `nomad` image:
+
+```bash
+$ cd packer/nomad
+$ packer build client.json
+$ packer build server.json
+```
+
+For `wireguard` image:
+
+```bash
+$ cd packer/wireguard
+$ packer build wireguard.json
+```
+
+**Note**: Review properly the contents of each image as I include certain configurations related to my cluster and you may don't want / need those.
+
+## Deploy a recipe
+
+If you have your `nomad` cluster ready, to deploy a recipe:
+
+```bash
+$ make deploy-postgres // or any other supported service
+```
+
+Make sure your `.envrc` settings are pointing correctly to your `nomad` server. Other commands are available, check out the `Makefile`!
 
 ## 💻 Contribute
 

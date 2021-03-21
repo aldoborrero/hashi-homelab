@@ -20,7 +20,7 @@ job "sonarr" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/sonarr:preview-3.0.4.1069-ls28"
+        image        = "linuxserver/sonarr:preview-3.0.4.1132-ls65"
         network_mode = "host"
         ports        = ["http"]
         volumes = [

@@ -14,7 +14,7 @@ job "bitwarden" {
       driver = "docker"
 
       config {
-        image        = "bitwardenrs/server-postgresql:1.18.0"
+        image        = "bitwardenrs/server:1.19.0-alpine"
         network_mode = "host"
         ports        = ["http"]
         volumes      = ["[[ .app.bitwarden.volumes.data ]]:/data"]

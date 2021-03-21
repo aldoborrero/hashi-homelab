@@ -17,7 +17,7 @@ app:
 
   aleth:
     traefik:
-      domain: aleth.home
+      domain: mainnet.home
 
   bazarr:
     constraints:
@@ -37,6 +37,8 @@ app:
       node: nomad-1
     volumes:
       data: /mnt/disks/sdb/besu/mainnet_fast
+    traefik:
+      domain: besu.home
 
   bitwarden:
     volumes:
@@ -106,7 +108,7 @@ app:
 
   jackett:
     constraints:
-      operator: !=
+      operator: '!='
       node: nomad-1
     volumes:
       config: /mnt/services/jackett
@@ -180,10 +182,10 @@ app:
 
   nzbhydra2:
     constraints:
-      operator: '!='
-      node: nomad-1
+      operator: =
+      node: nomad-2
     volumes:
-      config: /mnt/services/nzbhydra2
+      config: /mnt/disks/sdb/nzbhydra2
       watch: /mnt/media/downloads/watch
     traefik:
       domain: nzbhydra2.home
@@ -271,7 +273,7 @@ app:
       config: /mnt/disks/sdb/sabnzbd
       downloads:
         complete: /mnt/media/downloads/complete
-        incomplete: /mnt/media/downloads/incomplete
+        incomplete: /mnt/disks/sdb/downloads/incomplete
     traefik:
       domain: sabnzbd.home
 

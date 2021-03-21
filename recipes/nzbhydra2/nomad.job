@@ -14,7 +14,7 @@ job "nzbhydra2" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/nzbhydra2:v3.9.0-ls6"
+        image        = "linuxserver/nzbhydra2:version-v3.13.1"
         network_mode = "host"
         ports        = ["http"]
         volumes = [
