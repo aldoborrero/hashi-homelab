@@ -2,7 +2,7 @@
 include .envrc
 
 # Constants
-levant = hashicorp/levant:0.3.0-beta1
+levant = hashicorp/levant:0.3.0
 
 help:##............Show this help
 	@echo ""
