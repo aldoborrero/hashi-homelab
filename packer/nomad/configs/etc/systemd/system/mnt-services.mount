@@ -1,0 +1,14 @@
+[Unit]
+Description=CIFS Mount
+Requires=systemd-networkd-wait-online.service
+After=systemd-networkd-wait-online.service
+Before=docker.service
+
+[Mount]
+What=//192.168.1.8/services
+Where=/mnt/services
+Options=uid=nomad,gid=nomad,credentials=/home/nomad/.smbcredentials
+Type=cifs
+
+[Install]
+WantedBy=multi-user.target
