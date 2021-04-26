@@ -38,7 +38,7 @@ job "postgres" {
           type     = "tcp"
           port     = "db"
           interval = "30s"
-          timeout  = "2s"
+          timeout  = "60s"
         }
       }
 
