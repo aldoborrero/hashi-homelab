@@ -7,6 +7,7 @@ DEBIAN_FRONTEND=noninteractive
 CONSUL_VERSION='1.9.1'
 NOMAD_VERSION='1.0.1'
 VAULT_VERSION='1.6.1'
+VAULT_UNSEAL_VERSION='0.0.6'
 COREDNS_VERSION='1.8.0'
 NODE_EXPORTER_VERSION='1.0.1'
 
@@ -42,6 +43,11 @@ sudo chmod +x /tmp/vault
 sudo mv /tmp/vault /usr/local/bin
 sudo mkdir -p /var/vault /etc/vault
 sudo cp /tmp/configs/etc/vault/* /etc/vault/
+
+# Add Vault Unseal
+sudo wget https://github.com/lrstanley/vault-unseal/releases/download/v${VAULT_UNSEAL_VERSION}/vault-unseal_${VAULT_UNSEAL_VERSION}_linux_amd64.tar.gz -O /tmp/vault-unseal.tar.gz
+sudo tar -C /usr/bin/ -xzvf /tmp/vault-unseal.tar.gz vault-unseal
+sudo chmod +x /usr/bin/vault-unseal
 
 # Add CoreDNS
 sudo wget https://github.com/coredns/coredns/releases/download/v${COREDNS_VERSION}/coredns_${COREDNS_VERSION}_linux_amd64.tgz -O /tmp/coredns.tgz
