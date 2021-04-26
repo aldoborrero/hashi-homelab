@@ -8,6 +8,16 @@ common:
     pgid: 1000
 
 app:
+  adguard:
+    constraints:
+      operator: =
+      node: nomad-3
+    volumes:
+      workdir: /mnt/disks/sdb/adguard/workdir
+      config: /mnt/services/adguard/config
+    traefik:
+      domain: adguard.home
+
   alertmanager:
     constraints:
       operator: =
@@ -196,15 +206,6 @@ app:
       node: nomad-1
     traefik:
       domain: pgweb.home
-
-  pihole:
-    constraints:
-      operator: =
-      node: nomad-3
-    volumes:
-      config: /mnt/services/pihole
-    traefik:
-      domain: pihole.home
 
   plex:
     constraints:

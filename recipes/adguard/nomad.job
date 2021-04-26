@@ -1,0 +1,87 @@
+job "adguard" {
+  region      = "[[ .nomad.region ]]"
+  datacenters = ["[[ .nomad.datacenter ]]"]
+  type        = "service"
+  priority    = 100
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "[[ .app.adguard.constraints.operator ]]"
+    value     = "[[ .app.adguard.constraints.node ]]"
+  }
+
+  group "networking" {
+    count = 1
+
+    network {
+      port "http1" {
+        static = "8181"
+        to = "80"
+      }
+
+      port "http2" {
+        static = "3000"
+        to = "3000"
+      }
+
+      port "dns" {
+        static = "5353"
+        to = "53"
+      }
+
+      port "dnsovertls" {
+        static = "853"
+        to = "853"
+      }
+
+      port "dnsquic" {
+        static = "784"
+        to = "784"
+      }
+
+      port "dnscrypt" {
+        static = "5443"
+        to = "5443"
+      }
+    }
+
+    task "adguard" {
+      driver = "docker"
+
+      config {
+        image = "adguard/adguardhome:v0.105.1"
+        ports = ["http1", "http2", "dns", "dnsovertls", "dnscrypt"]
+        volumes = [
+          "[[ .app.adguard.volumes.workdir ]]:/opt/adguardhome/work",
+          "[[ .app.adguard.volumes.config ]]:/opt/adguardhome/conf",
+        ]
+      }
+
+      service {
+        port = "http1"
+        name = "adguard"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.adguard_http.entrypoints=http",
+          "traefik.http.routers.adguard_http.middlewares=httpsRedirect",
+          "traefik.http.routers.adguard_http.rule=Host(`[[ .app.adguard.traefik.domain ]]`)",
+          "traefik.http.routers.adguard_https.entrypoints=https",
+          "traefik.http.routers.adguard_https.rule=Host(`[[ .app.adguard.traefik.domain ]]`)",
+          "traefik.http.routers.adguard_https.tls.domains[0].sans=[[ .app.adguard.traefik.domain ]]",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "120s"
+          timeout  = "60s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+      }
+    }
+  }
+}
