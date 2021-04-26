@@ -2,6 +2,7 @@ job "traefik" {
   region      = "[[ .nomad.region ]]"
   datacenters = ["[[ .nomad.datacenter ]]"]
   type        = "system"
+  priority    = 100
 
   group "traefik" {
     count = 1
@@ -30,6 +31,23 @@ job "traefik" {
           "[[ .app.traefik.volumes.dynamic ]]:/etc/traefik/dynamic",
           "[[ .app.traefik.volumes.certificates ]]:/etc/traefik/certificates",
         ]
+      }
+
+      service {
+        name = "traefik"
+
+        check {
+          name     = "alive"
+          type     = "tcp"
+          port     = "http"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
       }
 
       template {
@@ -67,23 +85,6 @@ job "traefik" {
 EOF
 
         destination = "local/traefik.toml"
-      }
-
-      resources {
-        cpu    = 100
-        memory = 128
-      }
-
-      service {
-        name = "traefik"
-
-        check {
-          name     = "alive"
-          type     = "tcp"
-          port     = "http"
-          interval = "10s"
-          timeout  = "2s"
-        }
       }
     }
   }
