@@ -20,8 +20,7 @@ job "emby" {
       driver = "docker"
 
       config {
-        image        = "emby/embyserver:4.6.0.10"
-        privileged   = "true"
+        image        = "emby/embyserver:4.6.0.38"
         network_mode = "host"
         ports        = ["http"]
         volumes = [

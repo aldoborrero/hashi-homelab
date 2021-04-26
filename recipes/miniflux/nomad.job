@@ -3,6 +3,12 @@ job "miniflux" {
   datacenters = ["[[ .nomad.datacenter ]]"]
   type        = "service"
 
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "[[ .app.miniflux.constraints.operator ]]"
+    value     = "[[ .app.miniflux.constraints.node ]]"
+  }
+
   group "miniflux" {
     count = 1
 
@@ -14,7 +20,7 @@ job "miniflux" {
       driver = "docker"
 
       config {
-        image        = "miniflux/miniflux:2.0.27"
+        image        = "miniflux/miniflux:2.0.29"
         network_mode = "host"
         ports        = ["http"]
       }
@@ -40,8 +46,8 @@ job "miniflux" {
         check {
           type     = "http"
           path     = "/"
-          interval = "10s"
-          timeout  = "2s"
+          interval = "120s"
+          timeout  = "60s"
         }
       }
 

@@ -20,7 +20,7 @@ job "jackett" {
       driver = "docker"
 
       config {
-        image        = "linuxserver/jackett:v0.17.261-ls15"
+        image        = "linuxserver/jackett:v0.17.892-ls29"
         network_mode = "host"
         ports        = ["http"]
         volumes      = ["[[ .app.jackett.volumes.config ]]:/config"]

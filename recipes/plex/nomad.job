@@ -20,7 +20,7 @@ job "plex" {
       driver = "docker"
 
       config {
-        image        = "plexinc/pms-docker:1.22.0.4163-d8c4875dd"
+        image        = "plexinc/pms-docker:1.22.2.4282-a97b03fad"
         privileged   = "true"
         network_mode = "host"
         ports        = ["http"]
