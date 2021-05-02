@@ -18,6 +18,11 @@ sudo mv /tmp/node_exporter /usr/sbin/node_exporter
 sudo mkdir -p /etc/sysconfig
 sudo cp /tmp/configs/etc/sysconfig/* /etc/sysconfig/
 
+# Remove resolved
+sudo systemctl disable systemd-resolved
+sudo systemctl mask systemd-resolved
+sudo systemctl stop systemd-resolved
+
 # Install unbound
 sudo apt install unbound
 
