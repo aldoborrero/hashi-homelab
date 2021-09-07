@@ -1,0 +1,66 @@
+job "bitwarden" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  group "bitwarden" {
+    count = 1
+
+    network {
+      port "http" { static = 8585 }
+    }
+
+    task "bitwarden" {
+      driver = "docker"
+
+      config {
+        image        = "vaultwarden/server:1.21.0-alpine"
+        network_mode = "host"
+        ports        = ["http"]
+        volumes      = ["/mnt/services/bitwarden:/data"]
+      }
+
+      env {
+        PUID                = "1000"
+        PGID                = "1000"
+        DATABASE_URL        = "postgresql://bitwarden:bitwarden@postgres.service.consul/bitwarden?sslmode=disable"
+        ENABLE_DB_WAL       = "false"
+        ROCKET_PORT         = "8585"
+        SHOW_PASSWORD_HINTS = "false"
+        WEB_VAULT_ENABLED   = "true"
+        DATA_FOLDER         = "/data"
+      }
+
+      service {
+        port = "http"
+        name = "bitwarden"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.bitwarden_http.entrypoints=http",
+          "traefik.http.routers.bitwarden_http.middlewares=httpsRedirect",
+          "traefik.http.routers.bitwarden_http.rule=Host(`bitwarden.home`)",
+          "traefik.http.routers.bitwarden_https.entrypoints=https",
+          "traefik.http.routers.bitwarden_https.rule=Host(`bitwarden.home`)",
+          "traefik.http.routers.bitwarden_https.tls.domains[0].sans=bitwarden.home",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 256
+      }
+    }
+  }
+}

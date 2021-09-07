@@ -1,0 +1,93 @@
+version: '3.8'
+
+networks:
+
+  public:
+    external: true
+
+volumes:
+
+services:
+
+  bazarr:
+    image: linuxserver/bazarr:latest
+    container_name: bazarr
+    restart: unless-stopped
+    environment:
+      - PUID
+      - PGID
+      - TZ
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${BAZARR_CONFIG}:/config
+      - ${BAZARR_DOWNLOADS}:/downloads
+      - ${BAZARR_TV}:/tv
+      - ${BAZARR_MOVIES}:/movies
+
+  jackett:
+    image: linuxserver/jackett:latest
+    container_name: jackett
+    restart: unless-stopped
+    environment:
+      - PUID
+      - PGID
+      - TZ
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${JACKETT_CONFIG}:/config
+      - ${JACKETT_DOWNLOADS}:/downloads
+
+  nzbhydra2:
+    image: linuxserver/nzbhydra2:latest
+    container_name: nzbhydra2
+    restart: unless-stopped
+    environment:
+      - PUID
+      - PGID
+      - TZ
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${NZBHYDRA2_CONFIG}:/config
+      - ${NZBHYDRA2_WATCH}:/watch
+
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID
+      - PGID
+      - TZ
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${SONARR_CONFIG}:/config
+      - ${SONARR_TV}:/tv
+      - ${SONARR_DOWNLOADS}:/downloads
+
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID
+      - PGID
+      - TZ
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${RADARR_CONFIG}:/config
+      - ${RADARR_TV}:/tv
+      - ${RADARR_DOWNLOADS}:/downloads
+
+  readarr:
+    image: linuxserver/readarr
+    container_name: readarr
+    restart: unless-stopped
+    environment:
+      - PUID
+      - PGID
+      - TZ
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${READARR_CONFIG_PATH}:/config
+      - ${READARR_BOOKS}:/books
+      - ${READARR_DOWNLOADS}:/downloads

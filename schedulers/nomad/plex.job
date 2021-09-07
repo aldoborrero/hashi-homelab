@@ -1,0 +1,76 @@
+job "plex" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "="
+    value     = "nomad-3"
+  }
+
+  group "plex" {
+    count = 1
+
+    network {
+      port "http" { static = 32400 }
+    }
+
+    task "plex" {
+      driver = "docker"
+
+      config {
+        image        = "plexinc/pms-docker:1.23.2.4625-a83d2d0f9"
+        privileged   = "true"
+        network_mode = "host"
+        ports        = ["http"]
+        volumes = [
+          "/mnt/disks/sdb/plex:/config",
+          "/mnt/disks/sdb/plex/transcode:/transcode",
+          "/mnt/media/:/data",
+        ]
+        devices = [
+          {
+            host_path      = "/dev/dri/"
+            container_path = "/dev/dri/"
+          }
+        ]
+      }
+
+      env {
+        PLEX_UID = 1000
+        PLEX_GID = 1000
+      }
+
+      service {
+        port = "http"
+        name = "plex"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.plex_http.entrypoints=http",
+          "traefik.http.routers.plex_http.middlewares=httpsRedirect",
+          "traefik.http.routers.plex_http.rule=Host(`plex.home`)",
+          "traefik.http.routers.plex_https.entrypoints=https",
+          "traefik.http.routers.plex_https.rule=Host(`plex.home`)",
+          "traefik.http.routers.plex_https.tls.domains[0].sans=plex.home",
+        ]
+        check {
+          type     = "tcp"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
+        }
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 8192
+      }
+    }
+  }
+}

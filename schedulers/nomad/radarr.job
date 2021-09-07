@@ -1,0 +1,69 @@
+job "radarr" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "="
+    value     = "nomad-3"
+  }
+
+  group "radarr" {
+    count = 1
+
+    network {
+      port "http" { static = 7878 }
+    }
+
+    task "radarr" {
+      driver = "docker"
+
+      config {
+        image        = "linuxserver/radarr:version-3.2.2.5080"
+        network_mode = "host"
+        ports        = ["http"]
+        volumes = [
+          "/mnt/disks/sdb/radarr:/config",
+          "/mnt/media/downloads/complete:/downloads",
+          "/mnt/media/movies:/movies",
+        ]
+      }
+
+      env {
+        PUID = "1000"
+        PGID = "1000"
+      }
+
+      service {
+        port = "http"
+        name = "radarr"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.radarr_http.entrypoints=http",
+          "traefik.http.routers.radarr_http.middlewares=httpsRedirect",
+          "traefik.http.routers.radarr_http.rule=Host(`radarr.home`)",
+          "traefik.http.routers.radarr_https.entrypoints=https",
+          "traefik.http.routers.radarr_https.rule=Host(`radarr.home`)",
+          "traefik.http.routers.radarr_https.tls.domains[0].sans=radarr.home",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
+        }
+      }
+
+      resources {
+        memory = 512
+      }
+    }
+  }
+}

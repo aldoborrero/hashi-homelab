@@ -1,0 +1,72 @@
+job "readarr" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "="
+    value     = "nomad-3"
+  }
+
+  group "readarr" {
+    count = 1
+
+    network {
+      port "http" { static = 8787 }
+    }
+
+    task "readarr" {
+      driver = "docker"
+
+      config {
+        image        = "hotio/readarr:nightly"
+        force_pull   = "true"
+        network_mode = "host"
+        ports        = ["http"]
+        volumes = [
+          "/mnt/disks/sdb/readarr:/config",
+          "/mnt/media/books:/books",
+          "/mnt/media/audiobooks:/audiobooks",
+          "/mnt/media/downloads/complete:/downloads",
+        ]
+      }
+
+      env {
+        PUID = "1000"
+        PGID = "1000"
+      }
+
+      service {
+        port = "http"
+        name = "readarr"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.readarr_http.entrypoints=http",
+          "traefik.http.routers.readarr_http.middlewares=httpsRedirect",
+          "traefik.http.routers.readarr_http.rule=Host(`readarr.home`)",
+          "traefik.http.routers.readarr_https.entrypoints=https",
+          "traefik.http.routers.readarr_https.rule=Host(`readarr.home`)",
+          "traefik.http.routers.readarr_https.tls.domains[0].sans=readarr.home",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+      }
+    }
+  }
+}

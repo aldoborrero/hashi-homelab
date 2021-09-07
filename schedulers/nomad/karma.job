@@ -1,0 +1,62 @@
+job "karma" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "!="
+    value     = "nomad-1"
+  }
+
+  group "karma" {
+    count = 1
+
+    network {
+      port "http" {}
+    }
+
+    task "karma" {
+      driver = "docker"
+
+      config {
+        image        = "lmierzwa/karma:v0.78"
+        network_mode = "host"
+        ports        = ["http"]
+      }
+
+      env {
+        HOST               = "${NOMAD_IP_http}"
+        PORT               = "${NOMAD_PORT_http}"
+        ALERTMANAGER_URI   = "https://karma.home"
+        ALERTMANAGER_PROXY = "true"
+      }
+
+      service {
+        port = "http"
+        name = "alerts"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.karma_http.entrypoints=http",
+          "traefik.http.routers.karma_http.middlewares=httpsRedirect",
+          "traefik.http.routers.karma_http.rule=Host(`karma.home`)",
+          "traefik.http.routers.karma_https.entrypoints=https",
+          "traefik.http.routers.karma_https.rule=Host(`karma.home`)",
+          "traefik.http.routers.karma_https.tls.domains[0].sans=karma.home",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 20
+        memory = 24
+      }
+    }
+  }
+}

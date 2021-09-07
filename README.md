@@ -1,15 +1,13 @@
-# Hashi Homelab
+# Homelab
 
 ![Cluster](.assets/cluster.jpeg)
 
-`Hashi Homelab` is a collection of [`nomad`](https://www.nomadproject.io/) recipes related to several Open Source projects that I use on my own `Nomad + Consul + Vault` + `Intel Nuc` cluster.
+`Homelab` is a collection of [`nomad`](https://www.nomadproject.io/) recipes related to several Open Source projects that I use on my own `Nomad + Consul + Vault` + `Intel Nuc` cluster.
 
 ## ✅ Supported services
 
 - [AlertManager](https://www.prometheus.io/docs/alerting/latest/alertmanager/): Alertmanager handles alerts sent by client applications such as the Prometheus server.
-- [Aleth](https://github.com/Alethio/ethereum-lite-explorer): Alethio's Light Weight Open Source Ethereum Explorer
 - [Bazarr](https://www.bazarr.media/): A companion application to Sonarr and Radarr. It can manage and download subtitles based on your requirements.
-- [Besu](https://github.com/hyperledger/besu): An enterprise-grade Java-based, Apache 2.0 licensed Ethereum client.
 - [Bitwarden](https://github.com/dani-garcia/bitwarden_rs): Unofficial Bitwarden compatible server written in Rust.
 - [Calibre-Web](https://github.com/janeczku/calibre-web): Web app for browsing, reading and downloading eBooks stored in a Calibre database.
 - [Deluge](https://github.com/deluge-torrent/deluge): Deluge BitTorrent client.
@@ -41,35 +39,8 @@
 - [Sonarr](https://github.com/Sonarr/Sonarr): Smart PVR for newsgroup and bittorrent users.
 - [Traefik](https://traefik.io/): A simple to use front-end proxy.
 - [Transmission](https://transmissionbt.com/): A fast, easy and free Bittorrent client.
-- [Turbogeth](https://github.com/ledgerwatch/turbo-geth): Turbo-Geth is a fork of Go-Ethereum with focus on performance. 
 
 **Note:** These services are configured towards my necessities so, make sure to review properly each service and adjust accordingly.
-
-## Packer
-
-Included in this repository there are two [`packer`](https://www.packer.io/) images:
-
-* `nomad`: Allows to configure a cluster of VM server / clients of Nomad clusters.
-* `wireguard`: Allows to configure easily a VM for Wireguard to have remote access.
-
-Both images utilizes [Packer's Proxmox builder](https://www.packer.io/docs/builders/proxmox/iso). If you wan't to build them, make sure you have configured correctly your `*.json` settings accordingly to your Proxmox machine.
-
-For `nomad` image:
-
-```bash
-$ cd packer/nomad
-$ packer build client.json
-$ packer build server.json
-```
-
-For `wireguard` image:
-
-```bash
-$ cd packer/wireguard
-$ packer build wireguard.json
-```
-
-**Note**: Review properly the contents of each image as I include certain configurations related to my cluster and you may don't want / need those.
 
 ## Deploy a recipe
 
@@ -88,6 +59,8 @@ Feel free to send a PR to add a new service or to correct any potential mistake 
 ## 🙌 Acknowledgements
 
 The initial idea was inspired by the work of [perrymanuk](https://github.com/perrymanuk) in his [`hashi-homelab`](https://github.com/perrymanuk/hashi-homelab) repository.
+
+Many thanks to [Numtide for providing counseling](https://github.com/numtide) to everything related to `nix`.
 
 ## ✍️ License
 

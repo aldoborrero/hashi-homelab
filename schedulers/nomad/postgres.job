@@ -1,0 +1,51 @@
+job "postgres" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "="
+    value     = "nomad-2"
+  }
+
+  group "postgres" {
+
+    network {
+      port "db" { static = 5432 }
+    }
+
+    task "postgres" {
+      driver = "docker"
+
+      config {
+        image        = "postgres:12"
+        network_mode = "host"
+        ports        = ["db"]
+        volumes      = ["/mnt/disks/sdb/postgres:/var/lib/postgresql/data"]
+      }
+
+      env {
+        POSTGRES_DB       = "postgres"
+        POSTGRES_USER     = "postgres"
+        POSTGRES_PASSWORD = "postgres"
+      }
+
+      service {
+        name = "postgres"
+        port = "db"
+        check {
+          type     = "tcp"
+          port     = "db"
+          interval = "30s"
+          timeout  = "60s"
+        }
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 1024
+      }
+    }
+  }
+}

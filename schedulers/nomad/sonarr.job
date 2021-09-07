@@ -1,0 +1,69 @@
+job "sonarr" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "="
+    value     = "nomad-3"
+  }
+
+  group "sonarr" {
+    count = 1
+
+    network {
+      port "http" { static = 8989 }
+    }
+
+    task "sonarr" {
+      driver = "docker"
+
+      config {
+        image        = "linuxserver/sonarr:version-3.0.6.1265"
+        network_mode = "host"
+        ports        = ["http"]
+        volumes = [
+          "/mnt/disks/sdb/sonarr:/config",
+          "/mnt/media/downloads/complete:/downloads",
+          "/mnt/media/tv-shows:/tv",
+        ]
+      }
+
+      env {
+        PUID = "1000"
+        PGID = "1000"
+      }
+
+      service {
+        port = "http"
+        name = "sonarr"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.sonarr_http.entrypoints=http",
+          "traefik.http.routers.sonarr_http.middlewares=httpsRedirect",
+          "traefik.http.routers.sonarr_http.rule=Host(`sonarr.home`)",
+          "traefik.http.routers.sonarr_https.entrypoints=https",
+          "traefik.http.routers.sonarr_https.rule=Host(`sonarr.home`)",
+          "traefik.http.routers.sonarr_https.tls.domains[0].sans=sonarr.home",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
+        }
+      }
+
+      resources {
+        memory = 512
+      }
+    }
+  }
+}

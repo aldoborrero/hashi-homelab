@@ -1,0 +1,70 @@
+job "sabnzbd" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "="
+    value     = "nomad-2"
+  }
+
+  group "sabnzbd" {
+    count = 1
+
+    network {
+      port "http" { static = 8080 }
+    }
+
+    task "sabnzbd" {
+      driver = "docker"
+
+      config {
+        image        = "linuxserver/sabnzbd:version-3.3.1"
+        network_mode = "host"
+        ports        = ["http"]
+        volumes = [
+          "/mnt/disks/sdb/sabnzbd:/config",
+          "/mnt/media/downloads/complete:/downloads",
+          "/mnt/disks/sdb/downloads/incomplete:/incomplete-downloads"
+        ]
+      }
+
+      env {
+        PUID = "1000"
+        PGID = "1000"
+      }
+
+      service {
+        name = "sabnzbd"
+        port = "http"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.sabnzbd_http.entrypoints=http",
+          "traefik.http.routers.sabnzbd_http.middlewares=httpsRedirect",
+          "traefik.http.routers.sabnzbd_http.rule=Host(`sabnzbd.home`)",
+          "traefik.http.routers.sabnzbd_https.entrypoints=https",
+          "traefik.http.routers.sabnzbd_https.rule=Host(`sabnzbd.home`)",
+          "traefik.http.routers.sabnzbd_https.tls.domains[0].sans=sabnzbd.home",
+        ]
+        check {
+          type     = "tcp"
+          port     = "http"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
+        }
+      }
+
+      resources {
+        cpu    = 1024
+        memory = 1024
+      }
+    }
+  }
+}

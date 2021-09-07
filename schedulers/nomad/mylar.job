@@ -1,0 +1,59 @@
+job "mylar" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  group "mylar" {
+    count = 1
+
+    network {
+      port "http" { static = 8090 }
+    }
+
+    task "mylar" {
+      driver = "docker"
+
+      config {
+        image        = "linuxserver/mylar3:version-v0.4.9.3"
+        network_mode = "host"
+        ports        = ["http"]
+        volumes = [
+          "/mnt/services/mylar:/config",
+          "/mnt/media/downloads/complete:/downloads",
+          "/mnt/media/comics:/comics",
+        ]
+      }
+
+      env {
+        PUID = "1000"
+        PGID = "1000"
+      }
+
+      service {
+        port = "http"
+        name = "mylar"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.mylar_http.entrypoints=http",
+          "traefik.http.routers.mylar_http.middlewares=httpsRedirect",
+          "traefik.http.routers.mylar_http.rule=Host(`mylar.home`)",
+          "traefik.http.routers.mylar_https.entrypoints=https",
+          "traefik.http.routers.mylar_https.rule=Host(`mylar.home`)",
+          "traefik.http.routers.mylar_https.tls.domains[0].sans=mylar.home",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 256
+      }
+    }
+  }
+}

@@ -3,3 +3,19 @@ packer_cache/
 
 # For built boxes
 *.box
+
+# nix
+env/
+/result*
+
+# Direnv
+/.direnv
+/.envrc.local
+/env
+
+# Terraform
+.terraform
+.terraform.lock.hcl
+.terraform.tfstate.lock.info
+terraform.tfstate
+terraform.tfstate.backup

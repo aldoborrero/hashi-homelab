@@ -1,0 +1,84 @@
+job "heimdall" {
+  region      = "home"
+  datacenters = ["dc1"]
+
+  type = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "="
+    value     = "nomad-2"
+  }
+
+  update {
+    max_parallel      = 1
+    health_check      = "checks"
+    min_healthy_time  = "10s"
+    healthy_deadline  = "5m"
+    progress_deadline = "10m"
+    auto_revert       = true
+    canary            = 0
+    stagger           = "30s"
+  }
+
+  reschedule {
+    delay          = "30s"
+    delay_function = "constant"
+    unlimited      = true
+  }
+
+  group "heimdall" {
+    count = 1
+
+    network {
+      port "http" { to = 80 }
+      port "https" { to = 443 }
+    }
+
+    task "heimdall" {
+      driver = "docker"
+
+      config {
+        image   = "linuxserver/heimdall:version-2.2.2"
+        ports   = ["http"]
+        volumes = ["/mnt/disks/sdb/heimdall:/config"]
+      }
+
+      env {
+        PUID = "1000"
+        PGID = "1000"
+      }
+
+      service {
+        port = "http"
+        name = "heimdall"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.heimdall_http.entrypoints=http",
+          "traefik.http.routers.heimdall_http.middlewares=httpsRedirect",
+          "traefik.http.routers.heimdall_http.rule=Host(`in.home`)",
+          "traefik.http.routers.heimdall_https.entrypoints=https",
+          "traefik.http.routers.heimdall_https.rule=Host(`inin.home`)",
+          "traefik.http.routers.heimdall_https.tls.domains[0].sans=inin.home",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "60s"
+          timeout  = "20s"
+
+          check_restart {
+            limit = 3
+            grace = "240s"
+          }
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+      }
+    }
+  }
+}

@@ -1,0 +1,91 @@
+job "traefik" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "system"
+  priority    = 100
+
+  group "traefik" {
+    count = 1
+
+    network {
+      port "http" { static = 80 }
+      port "https" { static = 443 }
+      port "api" { static = 8081 }
+    }
+
+    update {
+      max_parallel     = 1
+      min_healthy_time = "30s"
+      auto_revert      = true
+    }
+
+    task "traefik" {
+      driver = "docker"
+
+      config {
+        image        = "traefik:v2.4"
+        network_mode = "host"
+        ports        = ["http", "https", "api"]
+        volumes = [
+          "local/traefik.toml:/etc/traefik/traefik.toml",
+          "/mnt/services/traefik/dynamic:/etc/traefik/dynamic",
+          "/mnt/services/traefik/certificates:/etc/traefik/certificates",
+        ]
+      }
+
+      service {
+        name = "traefik"
+
+        check {
+          name     = "alive"
+          type     = "tcp"
+          port     = "http"
+          interval = "60s"
+          timeout  = "20s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+      }
+
+      template {
+        data = <<EOF
+[global]
+  checkNewVersion = false
+  sendAnonymousUsage = false
+
+[log]
+[ping]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+  [entryPoints.https]
+  address = ":443"
+  [entryPoints.traefik]
+  address = ":8081"
+
+[api]
+  dashboard = true
+  insecure  = true
+
+[providers.file]
+  directory = "/etc/traefik/dynamic/"
+  watch = true
+
+[providers.consulCatalog]
+  prefix           = "traefik"
+  exposedByDefault = false
+
+  [providers.consulCatalog.endpoint]
+    address = "127.0.0.1:8500"
+    scheme  = "http"
+EOF
+
+        destination = "local/traefik.toml"
+      }
+    }
+  }
+}

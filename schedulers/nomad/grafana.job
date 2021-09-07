@@ -1,0 +1,67 @@
+job "grafana" {
+  region      = "home"
+  datacenters = ["dc1"]
+  type        = "service"
+
+  constraint {
+    attribute = "${attr.unique.hostname}"
+    operator  = "="
+    value     = "nomad-2"
+  }
+
+  group "grafana" {
+    count = 1
+
+    network {
+      port "http" { static = 3000 }
+    }
+
+    task "grafana" {
+      driver = "docker"
+
+      config {
+        image        = "grafana/grafana:7.3.7"
+        network_mode = "host"
+        ports        = ["http"]
+        volumes = [
+          "/mnt/services/grafana:/etc/grafana/",
+          "/mnt/disks/sdb/grafana:/var/lib/grafana",
+        ]
+      }
+
+      user = 1000
+
+      env {
+        GF_PATHS_DATA         = "/var/lib/grafana"
+        GF_AUTH_BASIC_ENABLED = "false"
+        GF_INSTALL_PLUGINS    = "grafana-piechart-panel"
+      }
+
+      service {
+        port = "http"
+        name = "grafana"
+        tags = [
+          "traefik.enable=true",
+          "traefik.http.middlewares.httpsRedirect.redirectscheme.scheme=https",
+          "traefik.http.routers.grafana_http.entrypoints=http",
+          "traefik.http.routers.grafana_http.middlewares=httpsRedirect",
+          "traefik.http.routers.grafana_http.rule=Host(`grafana.home`)",
+          "traefik.http.routers.grafana_https.entrypoints=https",
+          "traefik.http.routers.grafana_https.rule=Host(`grafana.home`)",
+          "traefik.http.routers.grafana_https.tls.domains[0].sans=grafana.home",
+        ]
+        check {
+          type     = "http"
+          path     = "/"
+          interval = "10s"
+          timeout  = "2s"
+        }
+      }
+
+      resources {
+        cpu    = 100
+        memory = 128
+      }
+    }
+  }
+}
