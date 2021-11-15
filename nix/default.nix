@@ -1,28 +1,33 @@
-{
-  system ? builtins.currentSystem,
-  nixpkgs ? import ./nixpkgs.nix { inherit system; }
+{ system ? builtins.currentSystem
+, nixpkgs ? import ./nixpkgs.nix { inherit system; }
 }:
 
 let
-  tf = nixpkgs.terraform.withPlugins (p: [
-    p.null
-    p.local
-    p.random
-  ]);
+  mkEnv = nixpkgs.callPackage ./mkEnv.nix { };
 
-  tf-alias = nixpkgs.writeShellScriptBin "tf" ''
-    exec ${tf}/bin/terraform "$@"
+  just = nixpkgs.just;
+  just-alias = nixpkgs.writeShellScriptBin "j" ''
+    exec ${just}/bin/just "$@"
   '';
-
-  mkEnv = nixpkgs.callPackage ./mkEnv.nix {};
 in
 {
   inherit nixpkgs;
 
   env = mkEnv {
     paths = [
-      tf-alias
-      tf
+      just
+      just-alias
+      nixpkgs.acme-sh
+      nixpkgs.hadolint
+      nixpkgs.mkcert
+      nixpkgs.nixos-generators
+      nixpkgs.nixpkgs-fmt
+      nixpkgs.nodejs-16_x
+      nixpkgs.nodePackages.prettier
+      nixpkgs.shfmt
+      nixpkgs.treefmt
+      nixpkgs.yarn
+      nixpkgs.yq-go
     ];
   };
 }

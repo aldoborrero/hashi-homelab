@@ -1,11 +1,8 @@
 { lib, writeText, buildEnv }:
 
-{
-  name ? "dev-env",
-  # Environment variables to set
-  env ? {},
-  # Packages to add to the path
-  paths ? []
+{ name ? "dev-env"
+, env ? { }
+, paths ? [ ]
 }:
 
 let

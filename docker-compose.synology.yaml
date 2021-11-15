@@ -1,0 +1,152 @@
+version: '3.9'
+
+services:
+  cf-companion:
+    image: docker.io/tiredofit/traefik-cloudflare-companion
+    container_name: cf-companion
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - TRAEFIK_VERSION=2
+      - REFRESH_ENTRIES=true
+      - CF_EMAIL
+      - CF_TOKEN
+      - TARGET_DOMAIN
+      - DOMAIN1=${DOMAIN}
+      - DOMAIN1_ZONE_ID=${CF_ZONE_ID}
+      - DOMAIN1_PROXIED=FALSE
+
+  dockergc:
+    image: docker.io/clockworksoul/docker-gc-cron
+    container_name: docker-gc
+    logging:
+      driver: local
+    networks:
+      - internal
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      CRON: 30 4 * * * # https://cron.help/#30_4_*_*_*
+      FORCE_IMAGE_REMOVAL: 1
+      FORCE_CONTAINER_REMOVAL: 0
+      GRACE_PERIOD_SECONDS: 604800 # 7 days
+      DRY_RUN: 0
+      CLEAN_UP_VOLUMES: 1
+
+  plex:
+    image: docker.io/linuxserver/plex
+    container_name: plex
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    network_mode: host
+    logging:
+      driver: local
+    environment:
+      - PUID
+      - PGID
+      - VERSION=docker
+    devices:
+      - /dev/dri:/dev/dri
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ${APP_DATA}/plex:/config
+      - ${MEDIA}:/media
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.plex.entrypoints: https
+      traefik.http.routers.plex.rule: Host(`plex.${DOMAIN}`)
+      traefik.http.routers.plex.tls: 'true'
+      # Services
+      traefik.http.routers.plex.service: plex
+      traefik.http.services.plex.loadbalancer.server.port: 32400
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
+  traefik:
+    image: docker.io/traefik:v2.5
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    network_mode: host
+    logging:
+      driver: local
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - traefik:/acme
+    command:
+      - --global.checkNewVersion=false
+      - --global.sendAnonymousUsage=false
+      - --log=true
+      - --log.level=WARN
+      - --accessLog=true
+      - --api=true
+      - --api.dashboard=true
+      - --providers.docker=true
+      - --providers.docker.swarmMode=false
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --entryPoints.traefik.address=:8080
+      - --entrypoints.https.http.tls.certresolver=dns-cloudflare
+      - --entrypoints.https.http.tls.domains[0].main=$DOMAIN
+      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN
+      - --certificatesResolvers.dns-cloudflare.acme.email=${CF_EMAIL}
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.delayBeforeCheck=90
+      - --certificatesresolvers.dns-cloudflare.acme.storage=/acme/acme.json
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: public
+      # HTTP-to-HTTPS Redirect
+      traefik.http.routers.http_catchall.rule: HostRegexp(`{any:.+}`)
+      traefik.http.routers.http_catchall.entrypoints: http
+      traefik.http.routers.http_catchall.middlewares: https_redirect
+      traefik.http.routers.traefik.rule: Host(`traefik-synology.${DOMAIN}`)
+      # HTTP Routers
+      traefik.http.routers.traefik.entrypoints: https
+      traefik.http.routers.traefik.tls: 'true'
+      # Services - API
+      traefik.http.routers.traefik.service: api@internal
+      # Middlewares
+      traefik.http.middlewares.https_redirect.redirectscheme.scheme: https
+      traefik.http.middlewares.https_redirect.redirectscheme.permanent: 'true'
+
+  watchtower:
+    image: docker.io/containrrr/watchtower
+    container_name: watchtower
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      WATCHTOWER_LABEL_ENABLE: 'true'
+      WATCHTOWER_CLEANUP: 'true'
+      WATCHTOWER_REMOVE_VOLUMES: 'true'
+      WATCHTOWER_INCLUDE_STOPPED: 'true'
+      WATCHTOWER_INCLUDE_RESTARTING: 'true'
+      WATCHTOWER_NO_STARTUP_MESSAGE: 'false'
+      WATCHTOWER_SCHEDULE: '30 5 * * * *' # Everyday at 5:30AM
+      WATCHTOWER_NOTIFICATIONS_LEVEL: info
+      DOCKER_API_VERSION: '1.39'
+    labels:
+      com.centurylinklabs.watchtower.enable: 'true'

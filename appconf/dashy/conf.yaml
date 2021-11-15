@@ -1,0 +1,96 @@
+---
+appConfig:
+  layout: vertical
+  theme: oblivion
+  iconSize: medium
+  hideComponents:
+    hideHeading: true
+    hideNav: true
+    hideSearch: true
+    hideSettings: true
+    hideFooter: true
+
+pageInfo:
+  title: Home Lab
+
+sections:
+  - name: Apps
+    icon: fas fa-play
+    displayData:
+      sortBy: alphabetical
+    items:
+      - title: Bitwarden
+        description: Password manager
+        icon: https://play-lh.googleusercontent.com/-jz18EgBYlmeHlnsq_iltq6uLnYFtXAVR_gi_d0qEj0pANQ1MtrJIstJoCQtImlWKwc=s360-rw
+      - title: FreshRSS
+        description: A free, self-hostable aggregator
+        icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/freshrss-icon.png
+  - name: Media
+    icon: fas fa-play-circle
+    items:
+      - title: Plex
+        description: Media server
+        icon: https://images.squarespace-cdn.com/content/5441db9ae4b0ea3fd727c19f/1413954707888-20OMIJXHNBNRNKPKFNEF/image-asset.png?format=250w&content-type=image%2Fpng
+        url: https://plex.domain.com/
+      - title: Overseerr
+        description: Media request manager
+        icon: https://overseerr.dev/_next/image?url=%2Fos_logo_filled.svg&w=96&q=75
+        url: https://overseerr.domain.com
+  - name: Media Managers & Tools
+    icon: fas fa-cloud-download
+    displayData:
+      sortBy: alphabetical
+    items:
+      - title: Radarr
+        description: Movies manager
+        icon: https://wiki.servarr.com/assets/radarr/logos/128.png
+        url: https://radarr.domain.com/
+      - title: Sonarr
+        description: TV Shows manager
+        icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
+        url: https://sonarr.domain.com/
+      - title: Readarr
+        description: Books manager
+        icon: https://wiki.servarr.com/assets/readarr/logos/128.png
+        url: https://readarr.domain.com/
+      - title: Bazarr
+        description: Subtitles manager
+        icon: https://www.bazarr.media/assets/img/logo.png
+        url: https://bazarr.domain.com/
+      - title: Prowlarr
+        description: Usenet & Torrent indexer
+        icon: https://prowlarr.com/logo/256.png
+        url: https://prowlarr.domain.com/
+      - title: Pasta
+        icon: https://www.pastatool.com/images/apple_icon180.png
+        description: Audio & Subtitle Track Changer for Plex
+        url: https://pasta.domain.com/
+      - title: Tautulli
+        description: Monitor your Plex Media Server
+        icon: https://avatars3.githubusercontent.com/u/34385001?s=400&v=4
+        url: https://tautulli.domain.com/
+      - title: Tdarr
+        description: Distributed transcoding system
+        icon: https://avatars.githubusercontent.com/u/43864057?v=4
+        url: https://tdarr.domain.com/
+      - title: Traktarr
+        description: Script to add new series & movies to Sonarr/Radarr based on Trakt lists
+        icon: https://d29fhpw069ctt2.cloudfront.net/icon/image/38599/preview.svg
+        url: https://traktarr.domain.com/
+  - name: Downloaders
+    icon: fa fa-download
+    displayData:
+      sortBy: alphabetical
+    items:
+      - title: Transmission
+        description: BitTorrent client
+        icon: https://upload.wikimedia.org/wikipedia/commons/4/46/Transmission_Icon.svg
+        url: https://transmission.domain.com/
+      - title: Sabnzbd
+        description: The automated Usenet download tool
+        icon: https://res.cloudinary.com/canonical/image/fetch/f_auto,q_auto,fl_sanitize,w_120,h_120/https://dashboard.snapcraft.io/site_media/appmedia/2018/10/icon.svg_WxcxD3g.png
+        url: https://sabnzbd.domain.com/
+      - title: TubeSync
+        description:
+        icon: https://raw.githubusercontent.com/meeb/tubesync/main/tubesync/common/static/images/favicon.ico
+        url: https://tubesync.domain.com/

@@ -5,6 +5,6 @@ let
 in
 import sources.nixpkgs {
   inherit system;
-  config = {};
-  overlays = [];
+  config = { };
+  overlays = [ ];
 }

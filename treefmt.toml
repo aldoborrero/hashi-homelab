@@ -1,0 +1,28 @@
+# One CLI to format the code tree - https://github.com/numtide/treefmt
+
+[formatter.nix]
+command = "nixpkgs-fmt"
+includes = ["*.nix"]
+excludes = []
+
+[formatter.yaml]
+command = "prettier"
+options = ["-w"]
+includes = ["*.yaml"]
+excludes = []
+
+[formatter.shell]
+command = "shfmt"
+options = [
+  "-i",
+  "2", # indent 2
+  "-s", # simplify the code
+  "-w", # write back to the file
+]
+includes = ["*.sh"]
+excludes = []
+
+[formatter.hadolint]
+command = "hadolint"
+options = ["--failure-threshold", "error"]
+includes = ["Dockerfile"]

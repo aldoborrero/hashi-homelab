@@ -4,6 +4,8 @@
 
 `Homelab` is a collection of [`nomad`](https://www.nomadproject.io/) recipes related to several Open Source projects that I use on my own `Nomad + Consul + Vault` + `Intel Nuc` cluster.
 
+**Warning**: v2 WIP!
+
 ## ✅ Supported services
 
 - [AlertManager](https://www.prometheus.io/docs/alerting/latest/alertmanager/): Alertmanager handles alerts sent by client applications such as the Prometheus server.
