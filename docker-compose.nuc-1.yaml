@@ -40,6 +40,7 @@ services:
       traefik.http.routers.bazarr.entrypoints: https
       traefik.http.routers.bazarr.rule: Host(`bazarr.${DOMAIN}`)
       traefik.http.routers.bazarr.tls: 'true'
+      traefik.http.routers.bazarr.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.bazarr.service: bazarr
       traefik.http.services.bazarr.loadbalancer.server.port: 6767
@@ -92,6 +93,7 @@ services:
       traefik.http.routers.dashy.entrypoints: https
       traefik.http.routers.dashy.rule: Host(`${DOMAIN}`)
       traefik.http.routers.dashy.tls: 'true'
+      traefik.http.routers.dashy.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.dashy.service: dashy
       traefik.http.services.dashy.loadbalancer.server.port: 80
@@ -132,7 +134,6 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-
       - ${APP_DATA}/freshrss:/config
     labels:
       traefik.enable: 'true'
@@ -140,6 +141,7 @@ services:
       traefik.http.routers.freshrss.entrypoints: https
       traefik.http.routers.freshrss.rule: Host(`freshrss.${DOMAIN}`)
       traefik.http.routers.freshrss.tls: 'true'
+      traefik.http.routers.freshrss.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.freshrss.service: freshrss
       traefik.http.services.freshrss.loadbalancer.server.port: 80
@@ -170,6 +172,7 @@ services:
       traefik.http.routers.overseerr.entrypoints: https
       traefik.http.routers.overseerr.rule: Host(`overseerr.${DOMAIN}`)
       traefik.http.routers.overseerr.tls: 'true'
+      traefik.http.routers.overseerr.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.overseerr.service: overseerr
       traefik.http.services.overseerr.loadbalancer.server.port: 5055
@@ -192,6 +195,7 @@ services:
       traefik.http.routers.pasta.entrypoints: https
       traefik.http.routers.pasta.rule: Host(`pasta.${DOMAIN}`)
       traefik.http.routers.pasta.tls: 'true'
+      traefik.http.routers.pasta.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.pasta.service: pasta
       traefik.http.services.pasta.loadbalancer.server.port: 80
@@ -221,6 +225,7 @@ services:
       traefik.http.routers.prowlarr.entrypoints: https
       traefik.http.routers.prowlarr.rule: Host(`prowlarr.${DOMAIN}`)
       traefik.http.routers.prowlarr.tls: 'true'
+      traefik.http.routers.prowlarr.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.prowlarr.service: prowlarr
       traefik.http.services.prowlarr.loadbalancer.server.port: 8989
@@ -252,6 +257,7 @@ services:
       traefik.http.routers.radarr.entrypoints: https
       traefik.http.routers.radarr.rule: Host(`radarr.${DOMAIN}`)
       traefik.http.routers.radarr.tls: 'true'
+      traefik.http.routers.radarr.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.radarr.service: radarr
       traefik.http.services.radarr.loadbalancer.server.port: 7878
@@ -283,6 +289,7 @@ services:
       traefik.http.routers.readarr.entrypoints: https
       traefik.http.routers.readarr.rule: Host(`readarr.${DOMAIN}`)
       traefik.http.routers.readarr.tls: 'true'
+      traefik.http.routers.readarr.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.readarr.service: readarr
       traefik.http.services.readarr.loadbalancer.server.port: 8787
@@ -313,9 +320,10 @@ services:
       traefik.http.routers.sabnzbd.entrypoints: https
       traefik.http.routers.sabnzbd.rule: Host(`sabnzbd.${DOMAIN}`)
       traefik.http.routers.sabnzbd.tls: 'true'
+      traefik.http.routers.sabnzbd.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.sabnzbd.service: sabnzbd
-      traefik.http.services.sabnzbd.loadbalancer.server.port: 9090
+      traefik.http.services.sabnzbd.loadbalancer.server.port: 8080
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
@@ -344,6 +352,7 @@ services:
       traefik.http.routers.sonarr.entrypoints: https
       traefik.http.routers.sonarr.rule: Host(`sonarr.${DOMAIN}`)
       traefik.http.routers.sonarr.tls: 'true'
+      traefik.http.routers.sonarr.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.sonarr.service: sonarr
       traefik.http.services.sonarr.loadbalancer.server.port: 8989
@@ -373,6 +382,7 @@ services:
       traefik.http.routers.tautulli.entrypoints: https
       traefik.http.routers.tautulli.rule: Host(`tautulli.${DOMAIN}`)
       traefik.http.routers.tautulli.tls: 'true'
+      traefik.http.routers.tautulli.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.tautulli.service: tautulli
       traefik.http.services.tautulli.loadbalancer.server.port: 8181
@@ -407,6 +417,7 @@ services:
       traefik.http.routers.tdarr.entrypoints: https
       traefik.http.routers.tdarr.rule: Host(`tadarr.${DOMAIN}`)
       traefik.http.routers.tdarr.tls: 'true'
+      traefik.http.routers.tdarr.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.tdarr.service: tdarr
       traefik.http.services.tdarr.loadbalancer.server.port: 8265
@@ -457,6 +468,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
       - traefik:/acme
+    environment:
+      CLOUDFLARE_EMAIL: ${CF_EMAIL}
+      CLOUDFLARE_API_KEY: ${CF_TOKEN}
     command:
       - --global.checkNewVersion=false
       - --global.sendAnonymousUsage=false
@@ -471,14 +485,15 @@ services:
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
       - --entryPoints.traefik.address=:8080
-      - --entrypoints.https.http.tls.certresolver=dns-cloudflare
+      - --entrypoints.https.http.tls.certresolver=le-dns-cloudflare
       - --entrypoints.https.http.tls.domains[0].main=$DOMAIN
       - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN
-      - --certificatesResolvers.dns-cloudflare.acme.email=${CF_EMAIL}
-      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
-      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
-      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.delayBeforeCheck=90
-      - --certificatesresolvers.dns-cloudflare.acme.storage=/acme/acme.json
+      - --certificatesResolvers.le-dns-cloudflare.acme.email=${CF_EMAIL}
+      - --certificatesresolvers.le-dns-cloudflare.acme.dnschallenge=true
+      - --certificatesResolvers.le-dns-cloudflare.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.le-dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.le-dns-cloudflare.acme.dnsChallenge.delayBeforeCheck=90
+      - --certificatesresolvers.le-dns-cloudflare.acme.storage=/acme/acme.json
     labels:
       traefik.enable: 'true'
       traefik.docker.network: public
@@ -490,6 +505,7 @@ services:
       # HTTP Routers
       traefik.http.routers.traefik.entrypoints: https
       traefik.http.routers.traefik.tls: 'true'
+      traefik.http.routers.traefik.tls.certresolver: le-dns-cloudflare
       # Services - API
       traefik.http.routers.traefik.service: api@internal
       # Middlewares
@@ -535,6 +551,7 @@ services:
       traefik.http.routers.transmission.entrypoints: https
       traefik.http.routers.transmission.rule: Host(`transmission.${DOMAIN}`)
       traefik.http.routers.transmission.tls: 'true'
+      traefik.http.routers.transmission.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.transmission.service: transmission
       traefik.http.services.transmission.loadbalancer.server.port: 9091
@@ -565,6 +582,7 @@ services:
       traefik.http.routers.tubesync.entrypoints: https
       traefik.http.routers.tubesync.rule: Host(`tubesync.${DOMAIN}`)
       traefik.http.routers.tubesync.tls: 'true'
+      traefik.http.routers.tubesync.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.tubesync.service: tubesync
       traefik.http.services.tubesync.loadbalancer.server.port: 4848
@@ -597,6 +615,7 @@ services:
       traefik.http.routers.vaultwarden.entrypoints: https
       traefik.http.routers.vaultwarden.rule: Host(`vaultwarden.${DOMAIN}`)
       traefik.http.routers.vaultwarden.tls: 'true'
+      traefik.http.routers.vaultwarden.tls.certresolver: le-dns-cloudflare
       # Services
       traefik.http.routers.vaultwarden.service: vaultwarden
       traefik.http.services.vaultwarden.loadbalancer.server.port: 80
