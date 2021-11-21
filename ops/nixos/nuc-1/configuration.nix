@@ -16,20 +16,7 @@
   };
 
   environment.systemPackages = with pkgs; [
-    bind
-    curl
-    docker-compose
-    ffmpeg-full
-    git
-    handbrake
-    htop
-    mkcert
-    neovim
     psmisc
-    pwgen
-    qrencode
-    unzip
-    wget
     wireguard
     wireguard-tools
   ];

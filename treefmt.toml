@@ -8,8 +8,8 @@ excludes = []
 [formatter.yaml]
 command = "prettier"
 options = ["-w"]
-includes = ["*.yaml"]
-excludes = []
+includes = ["**/*.{yaml,yml,json}"]
+excludes = ["./conf/plex/plugins"]
 
 [formatter.shell]
 command = "shfmt"

@@ -9,6 +9,8 @@ let
   just-alias = nixpkgs.writeShellScriptBin "j" ''
     exec ${just}/bin/just "$@"
   '';
+
+  trash-updater = nixpkgs.callPackage ./pkgs/trash-updater { };
 in
 {
   inherit nixpkgs;
@@ -28,6 +30,7 @@ in
       nixpkgs.treefmt
       nixpkgs.yarn
       nixpkgs.yq-go
+      trash-updater
     ];
   };
 }

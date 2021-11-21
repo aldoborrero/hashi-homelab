@@ -1,17 +1,26 @@
 version: '3.9'
 
+networks:
+  default:
+    name: synology
+
+volumes:
+  traefik:
+    name: traefik
+
 services:
   cf-companion:
     image: docker.io/tiredofit/traefik-cloudflare-companion
     container_name: cf-companion
     restart: unless-stopped
+    network_mode: host
     security_opt:
       - no-new-privileges:true
     logging:
       driver: local
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
     environment:
       - TRAEFIK_VERSION=2
       - REFRESH_ENTRIES=true
@@ -25,14 +34,12 @@ services:
   dockergc:
     image: docker.io/clockworksoul/docker-gc-cron
     container_name: docker-gc
+    network_mode: host
     logging:
       driver: local
-    networks:
-      - internal
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
     environment:
       CRON: 30 4 * * * # https://cron.help/#30_4_*_*_*
       FORCE_IMAGE_REMOVAL: 1
@@ -42,7 +49,7 @@ services:
       CLEAN_UP_VOLUMES: 1
 
   plex:
-    image: docker.io/linuxserver/plex
+    image: ghcr.io/hotio/plex
     container_name: plex
     restart: unless-stopped
     security_opt:
@@ -54,13 +61,16 @@ services:
       - PUID
       - PGID
       - VERSION=docker
+      - PLEX_CLAIM
+      - PLEX_PASS
     devices:
       - /dev/dri:/dev/dri
     volumes:
-      - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/plex:/config
+      - ${PLEX_CONF}:/config
+      - ${PLEX_PLUGINS}:/Library/Application Support/Plex Media Server/Plug-ins
       - ${MEDIA}:/media
+      - ${TRANSCODE}:/transcode
     labels:
       traefik.enable: 'true'
       # HTTP Routers
@@ -85,7 +95,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - traefik:/acme
     command:
       - --global.checkNewVersion=false
@@ -130,13 +139,13 @@ services:
     image: docker.io/containrrr/watchtower
     container_name: watchtower
     restart: unless-stopped
+    network_mode: host
     security_opt:
       - no-new-privileges:true
     logging:
       driver: local
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     environment:
       WATCHTOWER_LABEL_ENABLE: 'true'

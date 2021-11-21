@@ -31,11 +31,11 @@ sections:
       - title: Plex
         description: Media server
         icon: https://images.squarespace-cdn.com/content/5441db9ae4b0ea3fd727c19f/1413954707888-20OMIJXHNBNRNKPKFNEF/image-asset.png?format=250w&content-type=image%2Fpng
-        url: https://plex.domain.com/
+        url: https://plex.home/
       - title: Overseerr
         description: Media request manager
         icon: https://overseerr.dev/_next/image?url=%2Fos_logo_filled.svg&w=96&q=75
-        url: https://overseerr.domain.com
+        url: https://overseerr.home/
   - name: Media Managers & Tools
     icon: fas fa-cloud-download
     displayData:
@@ -44,39 +44,35 @@ sections:
       - title: Radarr
         description: Movies manager
         icon: https://wiki.servarr.com/assets/radarr/logos/128.png
-        url: https://radarr.domain.com/
+        url: https://radarr.home/
       - title: Sonarr
         description: TV Shows manager
         icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
-        url: https://sonarr.domain.com/
+        url: https://sonarr.home/
       - title: Readarr
         description: Books manager
         icon: https://wiki.servarr.com/assets/readarr/logos/128.png
-        url: https://readarr.domain.com/
+        url: https://readarr.home/
       - title: Bazarr
         description: Subtitles manager
         icon: https://www.bazarr.media/assets/img/logo.png
-        url: https://bazarr.domain.com/
+        url: https://bazarr.home/
       - title: Prowlarr
         description: Usenet & Torrent indexer
         icon: https://prowlarr.com/logo/256.png
-        url: https://prowlarr.domain.com/
+        url: https://prowlarr.home/
       - title: Pasta
         icon: https://www.pastatool.com/images/apple_icon180.png
         description: Audio & Subtitle Track Changer for Plex
-        url: https://pasta.domain.com/
+        url: https://pasta.home/
       - title: Tautulli
         description: Monitor your Plex Media Server
         icon: https://avatars3.githubusercontent.com/u/34385001?s=400&v=4
-        url: https://tautulli.domain.com/
+        url: https://tautulli.home/
       - title: Tdarr
         description: Distributed transcoding system
         icon: https://avatars.githubusercontent.com/u/43864057?v=4
-        url: https://tdarr.domain.com/
-      - title: Traktarr
-        description: Script to add new series & movies to Sonarr/Radarr based on Trakt lists
-        icon: https://d29fhpw069ctt2.cloudfront.net/icon/image/38599/preview.svg
-        url: https://traktarr.domain.com/
+        url: https://tdarr.home/
   - name: Downloaders
     icon: fa fa-download
     displayData:
@@ -85,12 +81,12 @@ sections:
       - title: Transmission
         description: BitTorrent client
         icon: https://upload.wikimedia.org/wikipedia/commons/4/46/Transmission_Icon.svg
-        url: https://transmission.domain.com/
+        url: https://transmission.home/
       - title: Sabnzbd
         description: The automated Usenet download tool
         icon: https://res.cloudinary.com/canonical/image/fetch/f_auto,q_auto,fl_sanitize,w_120,h_120/https://dashboard.snapcraft.io/site_media/appmedia/2018/10/icon.svg_WxcxD3g.png
-        url: https://sabnzbd.domain.com/
+        url: https://sabnzbd.home/
       - title: TubeSync
         description:
         icon: https://raw.githubusercontent.com/meeb/tubesync/main/tubesync/common/static/images/favicon.ico
-        url: https://tubesync.domain.com/
+        url: https://tubesync.home/

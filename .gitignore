@@ -10,7 +10,7 @@ env/
 
 # Direnv
 /.direnv
-/.envrc.local
+/.envrc.*
 /env
 
 # Terraform
@@ -19,3 +19,6 @@ env/
 .terraform.tfstate.lock.info
 terraform.tfstate
 terraform.tfstate.backup
+
+# Plex / Plugins
+conf/plex/agents/*.bundle
