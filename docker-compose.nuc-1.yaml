@@ -26,11 +26,11 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/bazarr:/config
       - ${DOWNLOADS}:/downloads
       - ${MEDIA}:/media
@@ -58,8 +58,8 @@ services:
       - internal
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/timezone:/etc/timezone:ro
     environment:
+      - TZ
       - TRAEFIK_VERSION=2
       - REFRESH_ENTRIES=true
       - CF_EMAIL
@@ -80,11 +80,11 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_CONF}/dashy/conf.yaml:/app/public/conf.yml
     labels:
       traefik.enable: 'true'
@@ -108,7 +108,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
     environment:
       CRON: 30 4 * * * # https://cron.help/#30_4_*_*_*
       FORCE_IMAGE_REMOVAL: 1
@@ -128,11 +127,12 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+
       - ${APP_DATA}/freshrss:/config
     labels:
       traefik.enable: 'true'
@@ -157,11 +157,12 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
+
       - ${APP_DATA}/overseerr:/config
     labels:
       traefik.enable: 'true'
@@ -208,11 +209,11 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/prowlarr:/config
     labels:
       traefik.enable: 'true'
@@ -237,11 +238,11 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/radarr:/config
       - ${MEDIA}:/media
       - ${DOWNLOADS}:/downloads
@@ -268,11 +269,11 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/readarr:/config
       - ${MEDIA}:/media
       - ${DOWNLOADS}:/downloads
@@ -299,11 +300,11 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/sabnzbd:/config
       - ${DOWNLOADS}:/downloads
     labels:
@@ -329,11 +330,11 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/sonarr:/config
       - ${MEDIA}:/media
       - ${DOWNLOADS}:/downloads
@@ -360,11 +361,11 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/tautulli:/config
     labels:
       traefik.enable: 'true'
@@ -389,6 +390,7 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
       - serverIP=0.0.0.0
@@ -396,7 +398,6 @@ services:
       - webUIPort=8265
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/tadarr:/app/server/Tdarr
       - ${TRANSCODING}/tdarr:/transcoding
       - ${MEDIA}:/media
@@ -423,6 +424,7 @@ services:
     networks:
       - internal
     environment:
+      - TZ
       - PUID
       - PGID
       - nodeID=tdarr-node
@@ -432,7 +434,6 @@ services:
       - serverPort=8266
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${TRANSCODING}/tdarr:/transcoding
       - ${MEDIA}:/media
     labels:
@@ -455,7 +456,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - traefik:/acme
     command:
       - --global.checkNewVersion=false
@@ -512,10 +512,10 @@ services:
       - NET_ADMIN
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/transmission:/config
       - ${DOWNLOADS}:/downloads
     environment:
+      - TZ
       - PUID
       - PGID
       - UMASK_SET="18"
@@ -553,10 +553,10 @@ services:
       - internal
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/tubesync:/config
       - ${DOWNLOADS}:/downloads
     environment:
+      - TZ
       - PUID
       - PGID
     labels:
@@ -583,9 +583,9 @@ services:
       - internal
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
       - ${APP_DATA}/vaultwarden:/data
     environment:
+      - TZ
       - PUID
       - PGID
       - SHOW_PASSWORD_HINTS=false
@@ -615,7 +615,6 @@ services:
       - internal
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     environment:
       WATCHTOWER_LABEL_ENABLE: 'true'
