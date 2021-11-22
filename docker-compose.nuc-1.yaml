@@ -346,6 +346,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${APP_DATA}/sabnzbd:/config
+      - ${MEDIA}:/media
       - ${DOWNLOADS}:/downloads
     labels:
       traefik.enable: 'true'
