@@ -22,9 +22,11 @@ sections:
       - title: Bitwarden
         description: Password manager
         icon: https://play-lh.googleusercontent.com/-jz18EgBYlmeHlnsq_iltq6uLnYFtXAVR_gi_d0qEj0pANQ1MtrJIstJoCQtImlWKwc=s360-rw
+        url: https://vaultwarden.home/
       - title: FreshRSS
         description: A free, self-hostable aggregator
         icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/freshrss-icon.png
+        url: https://freshrss.home/
   - name: Media
     icon: fas fa-play-circle
     items:

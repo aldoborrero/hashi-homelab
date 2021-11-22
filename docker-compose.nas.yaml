@@ -80,6 +80,7 @@ services:
       # Services
       traefik.http.routers.plex.service: plex
       traefik.http.services.plex.loadbalancer.server.port: 32400
+      traefik.http.routers.plex.tls.certresolver: letsencrypt
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
@@ -97,27 +98,35 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - traefik:/acme
     command:
+      # Disable certain settings
       - --global.checkNewVersion=false
       - --global.sendAnonymousUsage=false
+      # Enable logging
       - --log=true
       - --log.level=WARN
       - --accessLog=true
+      # Enable API & Dashboard
       - --api=true
       - --api.dashboard=true
+      # Configure Docker provider
       - --providers.docker=true
       - --providers.docker.swarmMode=false
       - --providers.docker.exposedbydefault=false
+      # Configure entrypoints (HTTP & HTTPS)
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
       - --entryPoints.traefik.address=:8080
-      - --entrypoints.https.http.tls.certresolver=dns-cloudflare
+      # Set up the TLS configuration for HTTPS
+      - --entrypoints.https.http.tls.certresolver=letsencrypt
       - --entrypoints.https.http.tls.domains[0].main=$DOMAIN
       - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN
-      - --certificatesResolvers.dns-cloudflare.acme.email=${CF_EMAIL}
-      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
-      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
-      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.delayBeforeCheck=90
-      - --certificatesresolvers.dns-cloudflare.acme.storage=/acme/acme.json
+      # Configure LetsEncrypt
+      - --certificatesResolvers.letsencrypt.acme.email=${CF_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesResolvers.letsencrypt.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.letsencrypt.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.letsencrypt.acme.dnsChallenge.delayBeforeCheck=90
+      - --certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json
     labels:
       traefik.enable: 'true'
       traefik.docker.network: public
@@ -125,10 +134,11 @@ services:
       traefik.http.routers.http_catchall.rule: HostRegexp(`{any:.+}`)
       traefik.http.routers.http_catchall.entrypoints: http
       traefik.http.routers.http_catchall.middlewares: https_redirect
-      traefik.http.routers.traefik.rule: Host(`traefik-synology.${DOMAIN}`)
+      traefik.http.routers.traefik.rule: Host(`nas.${DOMAIN}`)
       # HTTP Routers
       traefik.http.routers.traefik.entrypoints: https
       traefik.http.routers.traefik.tls: 'true'
+      traefik.http.routers.traefik.tls.certresolver: letsencrypt
       # Services - API
       traefik.http.routers.traefik.service: api@internal
       # Middlewares
