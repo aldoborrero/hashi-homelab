@@ -261,7 +261,7 @@ services:
       traefik.http.routers.prowlarr.tls.certresolver: letsencrypt
       # Services
       traefik.http.routers.prowlarr.service: prowlarr
-      traefik.http.services.prowlarr.loadbalancer.server.port: 8989
+      traefik.http.services.prowlarr.loadbalancer.server.port: 9696
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 

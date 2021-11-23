@@ -84,6 +84,20 @@ services:
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
+  plex-trakt-sync:
+    image: ghcr.io/taxel/plextraktsync
+    container_name: plex-trakt-sync
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    network_mode: host
+    logging:
+      driver: local
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${APP_CONF}/plex/trakt-sync/:/app/config/
+    command: watch
+
   traefik:
     image: docker.io/traefik:v2.5
     container_name: traefik
