@@ -5,11 +5,11 @@ command = "nixpkgs-fmt"
 includes = ["*.nix"]
 excludes = []
 
-[formatter.yaml]
+[formatter.prettier]
 command = "prettier"
 options = ["-w"]
 includes = ["**/*.{yaml,yml,json}"]
-excludes = ["./conf/plex/plugins"]
+excludes = []
 
 [formatter.shell]
 command = "shfmt"

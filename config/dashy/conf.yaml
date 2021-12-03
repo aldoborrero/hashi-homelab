@@ -43,14 +43,30 @@ sections:
     displayData:
       sortBy: alphabetical
     items:
-      - title: Radarr
-        description: Movies manager
+      - title: Radarr (Anime)
+        description: Radarr for Anime Movies
         icon: https://wiki.servarr.com/assets/radarr/logos/128.png
-        url: https://radarr.home/
-      - title: Sonarr
-        description: TV Shows manager
+        url: https://radarr.anime.home/
+      - title: Radarr (Documentaries)
+        description: Radarr for TV Documentaries
+        icon: https://wiki.servarr.com/assets/radarr/logos/128.png
+        url: https://radarr.documentaries.home/
+      - title: Radarr (Movies)
+        description: Radarr for Movies
+        icon: https://wiki.servarr.com/assets/radarr/logos/128.png
+        url: https://radarr.movies.home/
+      - title: Sonarr (Anime)
+        description: Sonarr for Anime Shows
         icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
-        url: https://sonarr.home/
+        url: https://sonarr.anime.home/
+      - title: Sonarr (Documentaries)
+        description: Sonarr for Documentaries
+        icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
+        url: https://sonarr.documentaries.home/
+      - title: Sonarr (TV Shows)
+        description: Sonarr for TV Shows
+        icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
+        url: https://sonarr.tv-shows.home/
       - title: Readarr
         description: Books manager
         icon: https://wiki.servarr.com/assets/readarr/logos/128.png

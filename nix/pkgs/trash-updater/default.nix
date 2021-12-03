@@ -5,8 +5,10 @@
 , autoPatchelfHook
 , zlib
 , gcc-unwrapped
-, krb5
+, libkrb5
 , openssl
+, libgcc
+, glibc
 }:
 
 let
@@ -28,8 +30,11 @@ stdenv.mkDerivation {
   buildInputs = [
     zlib
     gcc-unwrapped
-    krb5
+    libkrb5
     openssl
+    libgcc
+    glibc
+    stdenv.cc
   ];
 
   unpackCmd = ''

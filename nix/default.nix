@@ -10,6 +10,7 @@ let
     exec ${just}/bin/just "$@"
   '';
 
+  plexarr = nixpkgs.callPackage ./pkgs/plexarr { };
   trash-updater = nixpkgs.callPackage ./pkgs/trash-updater { };
 in
 {
@@ -30,6 +31,7 @@ in
       nixpkgs.treefmt
       nixpkgs.yarn
       nixpkgs.yq-go
+      plexarr
       trash-updater
     ];
   };

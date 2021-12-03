@@ -1,6 +1,8 @@
 version: '3.9'
 
 networks:
+  default:
+    name: homelab
   internal:
     name: internal
     driver: bridge
@@ -19,6 +21,8 @@ services:
     image: lscr.io/linuxserver/bazarr
     container_name: bazarr
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -31,14 +35,14 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/bazarr:/config
+      - ${BAZARR_CONFIG}:/config
       - ${DOWNLOADS}:/downloads
       - ${MEDIA}:/media
     labels:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.bazarr.entrypoints: https
-      traefik.http.routers.bazarr.rule: Host(`bazarr.${DOMAIN}`)
+      traefik.http.routers.bazarr.rule: Host(`${BAZARR_DOMAIN}`)
       traefik.http.routers.bazarr.tls: 'true'
       traefik.http.routers.bazarr.tls.certresolver: letsencrypt
       # Services
@@ -51,6 +55,8 @@ services:
     image: docker.io/vaultwarden/server
     container_name: bitwarden
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -59,7 +65,7 @@ services:
       - internal
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/bitwarden:/data
+      - ${BITWARDEN_CONF}:/data
     environment:
       - TZ
       - PUID
@@ -71,7 +77,7 @@ services:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.bitwarden.entrypoints: https
-      traefik.http.routers.bitwarden.rule: Host(`bitwarden.${DOMAIN}`)
+      traefik.http.routers.bitwarden.rule: Host(`${BITWARDEN_DOMAIN}`)
       traefik.http.routers.bitwarden.tls: 'true'
       traefik.http.routers.bitwarden.tls.certresolver: letsencrypt
       # Services
@@ -84,6 +90,9 @@ services:
     image: docker.io/tiredofit/traefik-cloudflare-companion
     container_name: cf-companion
     restart: unless-stopped
+    profiles:
+      - nuc-1
+      - nas
     security_opt:
       - no-new-privileges:true
     logging:
@@ -107,6 +116,8 @@ services:
     image: docker.io/lissy93/dashy
     container_name: dashy
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -119,12 +130,12 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_CONF}/dashy/conf.yaml:/app/public/conf.yml
+      - ${DASHY_CONF}:/app/public/conf.yml
     labels:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.dashy.entrypoints: https
-      traefik.http.routers.dashy.rule: Host(`${DOMAIN}`)
+      traefik.http.routers.dashy.rule: Host(`${DASHY_DOMAIN}`)
       traefik.http.routers.dashy.tls: 'true'
       traefik.http.routers.dashy.tls.certresolver: letsencrypt
       # Services
@@ -136,6 +147,9 @@ services:
   dockergc:
     image: docker.io/clockworksoul/docker-gc-cron
     container_name: docker-gc
+    profiles:
+      - nuc-1
+      - nas
     logging:
       driver: local
     networks:
@@ -155,6 +169,8 @@ services:
     image: lscr.io/linuxserver/freshrss
     container_name: freshrss
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -167,12 +183,12 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/freshrss:/config
+      - ${FRESHRSS_CONF}:/config
     labels:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.freshrss.entrypoints: https
-      traefik.http.routers.freshrss.rule: Host(`freshrss.${DOMAIN}`)
+      traefik.http.routers.freshrss.rule: Host(`${FRESHRSS_DOMAIN}`)
       traefik.http.routers.freshrss.tls: 'true'
       traefik.http.routers.freshrss.tls.certresolver: letsencrypt
       # Services
@@ -185,6 +201,8 @@ services:
     image: lscr.io/linuxserver/overseerr
     container_name: overseerr
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -197,13 +215,12 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-
-      - ${APP_DATA}/overseerr:/config
+      - ${OVERSEERR_CONF}:/config
     labels:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.overseerr.entrypoints: https
-      traefik.http.routers.overseerr.rule: Host(`overseerr.${DOMAIN}`)
+      traefik.http.routers.overseerr.rule: Host(`${OVERSEERR_DOMAIN}`)
       traefik.http.routers.overseerr.tls: 'true'
       traefik.http.routers.overseerr.tls.certresolver: letsencrypt
       # Services
@@ -216,6 +233,8 @@ services:
     image: docker.io/cglatot/pasta
     container_name: pasta
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -226,7 +245,7 @@ services:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.pasta.entrypoints: https
-      traefik.http.routers.pasta.rule: Host(`pasta.${DOMAIN}`)
+      traefik.http.routers.pasta.rule: Host(`${PASTA_DOMAIN}`)
       traefik.http.routers.pasta.tls: 'true'
       traefik.http.routers.pasta.tls.certresolver: letsencrypt
       # Services
@@ -235,10 +254,76 @@ services:
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
+  plex:
+    image: docker.io/linuxserver/plex
+    container_name: plex
+    restart: unless-stopped
+    profiles:
+      - nas
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - internal
+    ports:
+      - '32400:32400' # (for access to the Plex Media Server)
+      - '3005:3005' # (for controlling Plex Home Theater via Plex Companion)
+      - '8324:8324' # (for controlling Plex for Roku via Plex Companion)
+      - '32410:32410/udp' # (for current GDM network discovery)
+      - '32412:32412/udp' # (for current GDM network discovery)
+      - '32413:32413/udp' # (for current GDM network discovery)
+      - '32414:32414/udp' # (for current GDM network discovery)
+      - '32469:32469' # (for access to the Plex DLNA Server)
+    logging:
+      driver: local
+    environment:
+      - PUID
+      - PGID
+      - VERSION=docker
+      - PLEX_CLAIM
+      - PLEX_PASS
+    devices:
+      - /dev/dri:/dev/dri
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${PLEX_CONF}:/config
+      - ${MEDIA}:/media
+      - ${TRANSCODE}:/transcode
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.plex.entrypoints: https
+      traefik.http.routers.plex.rule: Host(`${PLEX_DOMAIN}`)
+      traefik.http.routers.plex.tls: 'true'
+      # Services
+      traefik.http.routers.plex.service: plex
+      traefik.http.services.plex.loadbalancer.server.port: 32400
+      traefik.http.routers.plex.tls.certresolver: letsencrypt
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
+  plex-trakt-sync:
+    image: ghcr.io/taxel/plextraktsync
+    container_name: plex-trakt-sync
+    restart: unless-stopped
+    profiles:
+      - nas
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - internal
+    logging:
+      driver: local
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${PLEX_TRAKT_SYNC_DATA}/plex/trakt-sync/:/app/config/
+    command: watch
+
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:nightly
     container_name: prowlarr
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -251,12 +336,12 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/prowlarr:/config
+      - ${PROWLARR_CONF}:/config
     labels:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.prowlarr.entrypoints: https
-      traefik.http.routers.prowlarr.rule: Host(`prowlarr.${DOMAIN}`)
+      traefik.http.routers.prowlarr.rule: Host(`${PROWLARR_DOMAIN}`)
       traefik.http.routers.prowlarr.tls: 'true'
       traefik.http.routers.prowlarr.tls.certresolver: letsencrypt
       # Services
@@ -265,10 +350,12 @@ services:
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
-  radarr:
+  radarr-anime:
     image: ghcr.io/linuxserver/radarr
-    container_name: radarr
+    container_name: radarr-anime
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -281,19 +368,87 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/radarr:/config
+      - ${RADARR_ANIME_CONFIG}:/config
       - ${MEDIA}:/media
       - ${DOWNLOADS}:/downloads
     labels:
       traefik.enable: 'true'
       # HTTP Routers
-      traefik.http.routers.radarr.entrypoints: https
-      traefik.http.routers.radarr.rule: Host(`radarr.${DOMAIN}`)
-      traefik.http.routers.radarr.tls: 'true'
-      traefik.http.routers.radarr.tls.certresolver: letsencrypt
+      traefik.http.routers.radarr-anime.entrypoints: https
+      traefik.http.routers.radarr-anime.rule: Host(`${RADARR_ANIME_DOMAIN}`)
+      traefik.http.routers.radarr-anime.tls: 'true'
+      traefik.http.routers.radarr-anime.tls.certresolver: letsencrypt
       # Services
-      traefik.http.routers.radarr.service: radarr
-      traefik.http.services.radarr.loadbalancer.server.port: 7878
+      traefik.http.routers.radarr-anime.service: radarr
+      traefik.http.services.radarr-anime.loadbalancer.server.port: 7878
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
+  radarr-documentaries:
+    image: ghcr.io/linuxserver/radarr
+    container_name: radarr-documentaries
+    restart: unless-stopped
+    profiles:
+      - nuc-1
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    networks:
+      - internal
+    environment:
+      - TZ
+      - PUID
+      - PGID
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${RADARR_DOCUMENTARIES_CONFIG}:/config
+      - ${MEDIA}:/media
+      - ${DOWNLOADS}:/downloads
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.radarr-documentaries.entrypoints: https
+      traefik.http.routers.radarr-documentaries.rule: Host(`${RADARR_DOCUMENTARIES_DOMAIN}`)
+      traefik.http.routers.radarr-documentaries.tls: 'true'
+      traefik.http.routers.radarr-documentaries.tls.certresolver: letsencrypt
+      # Services
+      traefik.http.routers.radarr-documentaries.service: radarr-documentaries
+      traefik.http.services.radarr-documentaries.loadbalancer.server.port: 7878
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
+  radarr-movies:
+    image: ghcr.io/linuxserver/radarr
+    container_name: radarr-movies
+    restart: unless-stopped
+    profiles:
+      - nuc-1
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    networks:
+      - internal
+    environment:
+      - TZ
+      - PUID
+      - PGID
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${RADARR_MOVIES_CONFIG}:/config
+      - ${MEDIA}:/media
+      - ${DOWNLOADS}:/downloads
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.radarr-movies.entrypoints: https
+      traefik.http.routers.radarr-movies.rule: Host(`${RADARR_MOVIES_DOMAIN}`)
+      traefik.http.routers.radarr-movies.tls: 'true'
+      traefik.http.routers.radarr-movies.tls.certresolver: letsencrypt
+      # Services
+      traefik.http.routers.radarr-movies.service: radarr-movies
+      traefik.http.services.radarr-movies.loadbalancer.server.port: 7878
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
@@ -301,6 +456,8 @@ services:
     image: docker.io/linuxserver/readarr:nightly
     container_name: readarr
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -313,14 +470,14 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/readarr:/config
+      - ${READARR_CONFIG}:/config
       - ${MEDIA}:/media
       - ${DOWNLOADS}:/downloads
     labels:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.readarr.entrypoints: https
-      traefik.http.routers.readarr.rule: Host(`readarr.${DOMAIN}`)
+      traefik.http.routers.readarr.rule: Host(`${READARR_DOMAIN}`)
       traefik.http.routers.readarr.tls: 'true'
       traefik.http.routers.readarr.tls.certresolver: letsencrypt
       # Services
@@ -333,6 +490,8 @@ services:
     image: lscr.io/linuxserver/sabnzbd
     container_name: sabnzbd
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -345,14 +504,14 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/sabnzbd:/config
+      - ${SABNZBD_CONFIG}:/config
       - ${MEDIA}:/media
       - ${DOWNLOADS}:/downloads
     labels:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.sabnzbd.entrypoints: https
-      traefik.http.routers.sabnzbd.rule: Host(`sabnzbd.${DOMAIN}`)
+      traefik.http.routers.sabnzbd.rule: Host(`${SABNZBD_DOMAIN}`)
       traefik.http.routers.sabnzbd.tls: 'true'
       traefik.http.routers.sabnzbd.tls.certresolver: letsencrypt
       # Services
@@ -361,10 +520,12 @@ services:
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
-  sonarr:
+  sonarr-anime:
     image: lscr.io/linuxserver/sonarr
-    container_name: sonarr
+    container_name: sonarr-anime
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -377,19 +538,87 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/sonarr:/config
+      - ${SONARR_ANIME_CONFIG}:/config
       - ${MEDIA}:/media
       - ${DOWNLOADS}:/downloads
     labels:
       traefik.enable: 'true'
       # HTTP Routers
-      traefik.http.routers.sonarr.entrypoints: https
-      traefik.http.routers.sonarr.rule: Host(`sonarr.${DOMAIN}`)
-      traefik.http.routers.sonarr.tls: 'true'
-      traefik.http.routers.sonarr.tls.certresolver: letsencrypt
+      traefik.http.routers.sonarr-anime.entrypoints: https
+      traefik.http.routers.sonarr-anime.rule: Host(`${SONARR_ANIME_DOMAIN}`)
+      traefik.http.routers.sonarr-anime.tls: 'true'
+      traefik.http.routers.sonarr-anime.tls.certresolver: letsencrypt
       # Services
-      traefik.http.routers.sonarr.service: sonarr
-      traefik.http.services.sonarr.loadbalancer.server.port: 8989
+      traefik.http.routers.sonarr-anime.service: sonarr-anime
+      traefik.http.services.sonarr-anime.loadbalancer.server.port: 8989
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
+  sonarr-documentaries:
+    image: lscr.io/linuxserver/sonarr
+    container_name: sonarr-documentaries
+    restart: unless-stopped
+    profiles:
+      - nuc-1
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    networks:
+      - internal
+    environment:
+      - TZ
+      - PUID
+      - PGID
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${SONARR_DOCUMENTARIES_CONFIG}:/config
+      - ${MEDIA}:/media
+      - ${DOWNLOADS}:/downloads
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.sonarr-documentaries.entrypoints: https
+      traefik.http.routers.sonarr-documentaries.rule: Host(`${SONARR_DOCUMENTARIES_DOMAIN}`)
+      traefik.http.routers.sonarr-documentaries.tls: 'true'
+      traefik.http.routers.sonarr-documentaries.tls.certresolver: letsencrypt
+      # Services
+      traefik.http.routers.sonarr-documentaries.service: sonarr-documentaries
+      traefik.http.services.sonarr-documentaries.loadbalancer.server.port: 8989
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
+  sonarr-tv-shows:
+    image: lscr.io/linuxserver/sonarr
+    container_name: sonarr-tv-shows
+    restart: unless-stopped
+    profiles:
+      - nuc-1
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    networks:
+      - internal
+    environment:
+      - TZ
+      - PUID
+      - PGID
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${SONAR_TV_SHOWS_CONFIG}:/config
+      - ${MEDIA}:/media
+      - ${DOWNLOADS}:/downloads
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.sonarr-tv-shows.entrypoints: https
+      traefik.http.routers.sonarr-tv-shows.rule: Host(`${SONARR_TV_SHOWS_DOMAIN}`)
+      traefik.http.routers.sonarr-tv-shows.tls: 'true'
+      traefik.http.routers.sonarr-tv-shows.tls.certresolver: letsencrypt
+      # Services
+      traefik.http.routers.sonarr-tv-shows.service: sonarr-tv-shows
+      traefik.http.services.sonarr-tv-shows.loadbalancer.server.port: 8989
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
@@ -397,6 +626,8 @@ services:
     image: lscr.io/linuxserver/tautulli
     container_name: tautulli
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -409,12 +640,12 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/tautulli:/config
+      - ${TAUTULLI_CONFIG}:/config
     labels:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.tautulli.entrypoints: https
-      traefik.http.routers.tautulli.rule: Host(`tautulli.${DOMAIN}`)
+      traefik.http.routers.tautulli.rule: Host(`${TAUTULLI_DOMAIN}`)
       traefik.http.routers.tautulli.tls: 'true'
       traefik.http.routers.tautulli.tls.certresolver: letsencrypt
       # Services
@@ -427,6 +658,8 @@ services:
     image: docker.io/haveagitgat/tdarr
     container_name: tdarr
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -442,14 +675,14 @@ services:
       - webUIPort=8265
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/tadarr:/app/server/Tdarr
+      - ${TDARR_CONFIG}:/app/server/Tdarr
       - ${TRANSCODING}/tdarr:/transcoding
       - ${MEDIA}:/media
     labels:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.tdarr.entrypoints: https
-      traefik.http.routers.tdarr.rule: Host(`tadarr.${DOMAIN}`)
+      traefik.http.routers.tdarr.rule: Host(`${TDARR_DOMAIN}`)
       traefik.http.routers.tdarr.tls: 'true'
       traefik.http.routers.tdarr.tls.certresolver: letsencrypt
       # Services
@@ -462,6 +695,8 @@ services:
     image: docker.io/haveagitgat/tdarr_node
     container_name: tdarr-node
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -488,6 +723,9 @@ services:
     image: docker.io/traefik:v2.5
     container_name: traefik
     restart: unless-stopped
+    profiles:
+      - nuc-1
+      - nas
     security_opt:
       - no-new-privileges:true
     logging:
@@ -543,7 +781,7 @@ services:
       traefik.http.routers.http_catchall.entrypoints: http
       traefik.http.routers.http_catchall.middlewares: https_redirect
       # Traefik Dashboard
-      traefik.http.routers.traefik.rule: Host(`nuc-1.${DOMAIN}`)
+      traefik.http.routers.traefik.rule: Host(`${TRAEFIK_DOMAIN}`)
       traefik.http.routers.traefik.service: api@internal
       # HTTP Routers
       traefik.http.routers.traefik.entrypoints: https
@@ -557,6 +795,8 @@ services:
     image: docker.io/haugene/transmission-openvpn
     container_name: transmission
     restart: unless-stopped
+    profiles:
+      - nuc-1
     logging:
       driver: local
     dns:
@@ -569,7 +809,7 @@ services:
       - NET_ADMIN
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/transmission:/config
+      - ${TRANSMISSION_CONFIG}:/config
       - ${DOWNLOADS}:/downloads
     environment:
       - TZ
@@ -590,7 +830,7 @@ services:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.transmission.entrypoints: https
-      traefik.http.routers.transmission.rule: Host(`transmission.${DOMAIN}`)
+      traefik.http.routers.transmission.rule: Host(`${TRANSMISSION_DOMAIN}`)
       traefik.http.routers.transmission.tls: 'true'
       traefik.http.routers.transmission.tls.certresolver: letsencrypt
       # Services
@@ -603,6 +843,8 @@ services:
     image: ghcr.io/meeb/tubesync
     container_name: tubesync
     restart: unless-stopped
+    profiles:
+      - nuc-1
     security_opt:
       - no-new-privileges:true
     logging:
@@ -611,7 +853,7 @@ services:
       - internal
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${APP_DATA}/tubesync:/config
+      - ${TUBESYNC_CONFIG}:/config
       - ${DOWNLOADS}:/downloads
     environment:
       - TZ
@@ -621,7 +863,7 @@ services:
       traefik.enable: 'true'
       # HTTP Routers
       traefik.http.routers.tubesync.entrypoints: https
-      traefik.http.routers.tubesync.rule: Host(`tubesync.${DOMAIN}`)
+      traefik.http.routers.tubesync.rule: Host(`${TUBESYNC_DOMAIN}`)
       traefik.http.routers.tubesync.tls: 'true'
       traefik.http.routers.tubesync.tls.certresolver: letsencrypt
       # Services
@@ -634,6 +876,9 @@ services:
     image: docker.io/containrrr/watchtower
     container_name: watchtower
     restart: unless-stopped
+    profiles:
+      - nuc-1
+      - nas
     security_opt:
       - no-new-privileges:true
     logging:

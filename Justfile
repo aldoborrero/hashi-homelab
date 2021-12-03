@@ -6,10 +6,8 @@
 set dotenv-load := true
 
 # Variables
-APP_CONF_PLEX := "${APP_CONF}/plex"
-
-PLEX_AGENTS := APP_CONF_PLEX + "/agents"
-PLEX_TRASH_UPDATER := APP_CONF_PLEX + "/trash-updater"
+PLEX_AGENTS := "${PLEX_PLUGINS}"
+PLEX_TRASH_UPDATER := "${APP_CONF}/trash-updater"
 
 PLEX_AGENT_HAMA_URL := "https://github.com/ZeroQI/Hama.bundle/archive/refs/heads/master.zip"
 PLEX_AGENT_HAMA_ZIP_OUT := "Hama.bundle-master"
@@ -29,7 +27,7 @@ default:
 
 # Docker Compose commands
 dc TARGET *ARGS:
-  docker-compose -f docker-compose.{{TARGET}}.yaml {{ARGS}}
+  docker-compose --profile {{TARGET}} {{ARGS}}
 
 # Utils
 alias f := fmt
