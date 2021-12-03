@@ -606,7 +606,7 @@ services:
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${SONAR_TV_SHOWS_CONFIG}:/config
+      - ${SONARR_TV_SHOWS_CONFIG}:/config
       - ${MEDIA}:/media
       - ${DOWNLOADS}:/downloads
     labels:
