@@ -51,6 +51,74 @@ services:
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
+  bazarr-anime:
+    image: lscr.io/linuxserver/bazarr
+    container_name: bazarr-anime
+    restart: unless-stopped
+    profiles:
+      - nuc-1
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    networks:
+      - internal
+    environment:
+      - TZ
+      - PUID
+      - PGID
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${BAZARR_CONFIG}:/config
+      - ${DOWNLOADS}:/downloads
+      - ${MEDIA}:/media
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.bazarr-anime.entrypoints: https
+      traefik.http.routers.bazarr-anime.rule: Host(`${BAZARR_ANIME_DOMAIN}`)
+      traefik.http.routers.bazarr-anime.tls: 'true'
+      traefik.http.routers.bazarr-anime.tls.certresolver: letsencrypt
+      # Services
+      traefik.http.routers.bazarr-anime.service: bazarr-anime
+      traefik.http.services.bazarr-anime.loadbalancer.server.port: 6767
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
+  bazarr-documentaries:
+    image: lscr.io/linuxserver/bazarr
+    container_name: bazarr-documentaries
+    restart: unless-stopped
+    profiles:
+      - nuc-1
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    networks:
+      - internal
+    environment:
+      - TZ
+      - PUID
+      - PGID
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${BAZARR_CONFIG}:/config
+      - ${DOWNLOADS}:/downloads
+      - ${MEDIA}:/media
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.bazarr-documentaries.entrypoints: https
+      traefik.http.routers.bazarr-documentaries.rule: Host(`${BAZARR_DOCUMENTARIES_DOMAIN}`)
+      traefik.http.routers.bazarr-documentaries.tls: 'true'
+      traefik.http.routers.bazarr-documentaries.tls.certresolver: letsencrypt
+      # Services
+      traefik.http.routers.bazarr-documentaries.service: bazarr-documentaries
+      traefik.http.services.bazarr-documentaries.loadbalancer.server.port: 6767
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
   bitwarden:
     image: docker.io/vaultwarden/server
     container_name: bitwarden
@@ -350,6 +418,40 @@ services:
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
+  radarr:
+    image: ghcr.io/linuxserver/radarr
+    container_name: radarr
+    restart: unless-stopped
+    profiles:
+      - nuc-1
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    networks:
+      - internal
+    environment:
+      - TZ
+      - PUID
+      - PGID
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${RADARR_CONFIG}:/config
+      - ${MEDIA}:/media
+      - ${DOWNLOADS}:/downloads
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.radarr.entrypoints: https
+      traefik.http.routers.radarr.rule: Host(`${RADARR_DOMAIN}`)
+      traefik.http.routers.radarr.tls: 'true'
+      traefik.http.routers.radarr.tls.certresolver: letsencrypt
+      # Services
+      traefik.http.routers.radarr.service: radarr
+      traefik.http.services.radarr.loadbalancer.server.port: 7878
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
   radarr-anime:
     image: ghcr.io/linuxserver/radarr
     container_name: radarr-anime
@@ -379,7 +481,7 @@ services:
       traefik.http.routers.radarr-anime.tls: 'true'
       traefik.http.routers.radarr-anime.tls.certresolver: letsencrypt
       # Services
-      traefik.http.routers.radarr-anime.service: radarr
+      traefik.http.routers.radarr-anime.service: radarr-anime
       traefik.http.services.radarr-anime.loadbalancer.server.port: 7878
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
@@ -415,40 +517,6 @@ services:
       # Services
       traefik.http.routers.radarr-documentaries.service: radarr-documentaries
       traefik.http.services.radarr-documentaries.loadbalancer.server.port: 7878
-      # Watchtower
-      com.centurylinklabs.watchtower.enable: 'true'
-
-  radarr-movies:
-    image: ghcr.io/linuxserver/radarr
-    container_name: radarr-movies
-    restart: unless-stopped
-    profiles:
-      - nuc-1
-    security_opt:
-      - no-new-privileges:true
-    logging:
-      driver: local
-    networks:
-      - internal
-    environment:
-      - TZ
-      - PUID
-      - PGID
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${RADARR_MOVIES_CONFIG}:/config
-      - ${MEDIA}:/media
-      - ${DOWNLOADS}:/downloads
-    labels:
-      traefik.enable: 'true'
-      # HTTP Routers
-      traefik.http.routers.radarr-movies.entrypoints: https
-      traefik.http.routers.radarr-movies.rule: Host(`${RADARR_MOVIES_DOMAIN}`)
-      traefik.http.routers.radarr-movies.tls: 'true'
-      traefik.http.routers.radarr-movies.tls.certresolver: letsencrypt
-      # Services
-      traefik.http.routers.radarr-movies.service: radarr-movies
-      traefik.http.services.radarr-movies.loadbalancer.server.port: 7878
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
@@ -520,6 +588,40 @@ services:
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 
+  sonarr:
+    image: lscr.io/linuxserver/sonarr
+    container_name: sonarr
+    restart: unless-stopped
+    profiles:
+      - nuc-1
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    networks:
+      - internal
+    environment:
+      - TZ
+      - PUID
+      - PGID
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${SONARR_CONFIG}:/config
+      - ${MEDIA}:/media
+      - ${DOWNLOADS}:/downloads
+    labels:
+      traefik.enable: 'true'
+      # HTTP Routers
+      traefik.http.routers.sonarr.entrypoints: https
+      traefik.http.routers.sonarr.rule: Host(`${SONARR_DOMAIN}`)
+      traefik.http.routers.sonarr.tls: 'true'
+      traefik.http.routers.sonarr.tls.certresolver: letsencrypt
+      # Services
+      traefik.http.routers.sonarr.service: sonarr
+      traefik.http.services.sonarr.loadbalancer.server.port: 8989
+      # Watchtower
+      com.centurylinklabs.watchtower.enable: 'true'
+
   sonarr-anime:
     image: lscr.io/linuxserver/sonarr
     container_name: sonarr-anime
@@ -585,40 +687,6 @@ services:
       # Services
       traefik.http.routers.sonarr-documentaries.service: sonarr-documentaries
       traefik.http.services.sonarr-documentaries.loadbalancer.server.port: 8989
-      # Watchtower
-      com.centurylinklabs.watchtower.enable: 'true'
-
-  sonarr-tv-shows:
-    image: lscr.io/linuxserver/sonarr
-    container_name: sonarr-tv-shows
-    restart: unless-stopped
-    profiles:
-      - nuc-1
-    security_opt:
-      - no-new-privileges:true
-    logging:
-      driver: local
-    networks:
-      - internal
-    environment:
-      - TZ
-      - PUID
-      - PGID
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${SONARR_TV_SHOWS_CONFIG}:/config
-      - ${MEDIA}:/media
-      - ${DOWNLOADS}:/downloads
-    labels:
-      traefik.enable: 'true'
-      # HTTP Routers
-      traefik.http.routers.sonarr-tv-shows.entrypoints: https
-      traefik.http.routers.sonarr-tv-shows.rule: Host(`${SONARR_TV_SHOWS_DOMAIN}`)
-      traefik.http.routers.sonarr-tv-shows.tls: 'true'
-      traefik.http.routers.sonarr-tv-shows.tls.certresolver: letsencrypt
-      # Services
-      traefik.http.routers.sonarr-tv-shows.service: sonarr-tv-shows
-      traefik.http.services.sonarr-tv-shows.loadbalancer.server.port: 8989
       # Watchtower
       com.centurylinklabs.watchtower.enable: 'true'
 

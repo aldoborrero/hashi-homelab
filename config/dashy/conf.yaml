@@ -27,6 +27,7 @@ sections:
         description: A free, self-hostable aggregator
         icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/freshrss-icon.png
         url: https://freshrss.home/
+
   - name: Media
     icon: fas fa-play-circle
     items:
@@ -38,7 +39,26 @@ sections:
         description: Media request manager
         icon: https://overseerr.dev/_next/image?url=%2Fos_logo_filled.svg&w=96&q=75
         url: https://overseerr.home/
-  - name: Media Managers & Tools
+
+  - name: Movies / TV Shows Meda Managers & Tools
+    icon: fas fa-cloud-download
+    displayData:
+      sortBy: alphabetical
+    items:
+      - title: Radarr (Movies)
+        description: Radarr for Movies
+        icon: https://wiki.servarr.com/assets/radarr/logos/128.png
+        url: https://radarr.home/
+      - title: Sonarr (TV Shows)
+        description: Sonarr for TV Shows
+        icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
+        url: https://sonarr.home/
+      - title: Bazarr (Movies / TV Shows)
+        description: Subtitles manager
+        icon: https://www.bazarr.media/assets/img/logo.png
+        url: https://bazarr.home/
+
+  - name: Anime Movies / Anime TV Shows Meda Managers & Tools
     icon: fas fa-cloud-download
     displayData:
       sortBy: alphabetical
@@ -46,35 +66,43 @@ sections:
       - title: Radarr (Anime)
         description: Radarr for Anime Movies
         icon: https://wiki.servarr.com/assets/radarr/logos/128.png
-        url: https://radarr.anime.home/
-      - title: Radarr (Documentaries)
-        description: Radarr for TV Documentaries
-        icon: https://wiki.servarr.com/assets/radarr/logos/128.png
-        url: https://radarr.documentaries.home/
-      - title: Radarr (Movies)
-        description: Radarr for Movies
-        icon: https://wiki.servarr.com/assets/radarr/logos/128.png
-        url: https://radarr.movies.home/
+        url: https://radarr-anime.home/
       - title: Sonarr (Anime)
         description: Sonarr for Anime Shows
         icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
-        url: https://sonarr.anime.home/
+        url: https://sonarr-anime.home/
+      - title: Bazarr (Anime)
+        description: Subtitles manager
+        icon: https://www.bazarr.media/assets/img/logo.png
+        url: https://bazarr-anime.home/
+
+  - name: Documentaries Movies / Documentaries TV Shows Meda Managers & Tools
+    icon: fas fa-cloud-download
+    displayData:
+      sortBy: alphabetical
+    items:
+      - title: Radarr (Documentaries)
+        description: Radarr for TV Documentaries
+        icon: https://wiki.servarr.com/assets/radarr/logos/128.png
+        url: https://radarr-documentaries.home/
       - title: Sonarr (Documentaries)
         description: Sonarr for Documentaries
         icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
-        url: https://sonarr.documentaries.home/
-      - title: Sonarr (TV Shows)
-        description: Sonarr for TV Shows
-        icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
-        url: https://sonarr.tv-shows.home/
+        url: https://sonarr-documentaries.home/
+      - title: Bazarr (Documentaries)
+        description: Subtitles manager
+        icon: https://www.bazarr.media/assets/img/logo.png
+        url: https://bazarr-documentaries.home/
+
+  - name: Other Media Managers & Tools
+    icon: fas fa-cloud-download
+    displayData:
+      sortBy: alphabetical
+    items:
       - title: Readarr
         description: Books manager
         icon: https://wiki.servarr.com/assets/readarr/logos/128.png
         url: https://readarr.home/
-      - title: Bazarr
-        description: Subtitles manager
-        icon: https://www.bazarr.media/assets/img/logo.png
-        url: https://bazarr.home/
       - title: Prowlarr
         description: Usenet & Torrent indexer
         icon: https://prowlarr.com/logo/256.png
@@ -91,6 +119,7 @@ sections:
         description: Distributed transcoding system
         icon: https://avatars.githubusercontent.com/u/43864057?v=4
         url: https://tdarr.home/
+
   - name: Downloaders
     icon: fa fa-download
     displayData:
