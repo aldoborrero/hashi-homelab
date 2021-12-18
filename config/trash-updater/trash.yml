@@ -11,9 +11,18 @@
 sonarr:
   - base_url: https://sonarr.home/
     api_key: 67c0c837c1b54bdfb36d070377c0011d
-    quality_definition: hybrid
+    quality_definition: series
+    release_profiles:
+      - type: series
+  - base_url: https://sonarr-anime.home/
+    api_key: 26fe687efbf94e1ba1ccd40ce3a764ae
+    quality_definition: anime
     release_profiles:
       - type: anime
+  - base_url: https://sonarr-documentaries.home/
+    api_key: 3127bc50cc164fc1a4454030ee37346a
+    quality_definition: series
+    release_profiles:
       - type: series
 
 # Configuration specific to Radarr.
@@ -22,7 +31,31 @@ radarr:
     api_key: acbcaa6ef63d43a98ebc0e4c64dc5586
     quality_definition:
       type: movie
-    delete_old_custom_formats: false
+    delete_old_custom_formats: true
+    custom_formats:
+      - names:
+        - BR-DISK
+        - EVO (no WEB-DL)
+        - LQ
+        - x265 (720/1080p)
+        - 3D
+  - base_url: https://radarr-anime.home/
+    api_key: eba22f7b775e4742b72824eb8e522318
+    quality_definition:
+      type: movie
+    delete_old_custom_formats: true
+    custom_formats:
+      - names:
+        - BR-DISK
+        - EVO (no WEB-DL)
+        - LQ
+        - x265 (720/1080p)
+        - 3D
+  - base_url: https://radarr-documentaries.home/
+    api_key: 3b0478f2cfc748bb88e2fdca75fb2f38
+    quality_definition:
+      type: movie
+    delete_old_custom_formats: true
     custom_formats:
       - names:
         - BR-DISK

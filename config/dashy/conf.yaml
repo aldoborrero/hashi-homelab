@@ -1,6 +1,6 @@
 ---
 appConfig:
-  layout: vertical
+  layout: horizontal
   theme: oblivion
   iconSize: medium
   hideComponents:
@@ -15,7 +15,7 @@ pageInfo:
 
 sections:
   - name: Apps
-    icon: fas fa-play
+    icon: fas fa-rocket
     displayData:
       sortBy: alphabetical
     items:
@@ -27,10 +27,6 @@ sections:
         description: A free, self-hostable aggregator
         icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/freshrss-icon.png
         url: https://freshrss.home/
-
-  - name: Media
-    icon: fas fa-play-circle
-    items:
       - title: Plex
         description: Media server
         icon: https://images.squarespace-cdn.com/content/5441db9ae4b0ea3fd727c19f/1413954707888-20OMIJXHNBNRNKPKFNEF/image-asset.png?format=250w&content-type=image%2Fpng
@@ -40,61 +36,61 @@ sections:
         icon: https://overseerr.dev/_next/image?url=%2Fos_logo_filled.svg&w=96&q=75
         url: https://overseerr.home/
 
-  - name: Movies / TV Shows Meda Managers & Tools
-    icon: fas fa-cloud-download
+  - name: Movies / TV Shows
+    icon: fas fa-film
     displayData:
       sortBy: alphabetical
     items:
-      - title: Radarr (Movies)
+      - title: Radarr
         description: Radarr for Movies
         icon: https://wiki.servarr.com/assets/radarr/logos/128.png
         url: https://radarr.home/
-      - title: Sonarr (TV Shows)
+      - title: Sonarr
         description: Sonarr for TV Shows
         icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
         url: https://sonarr.home/
-      - title: Bazarr (Movies / TV Shows)
+      - title: Bazarr
         description: Subtitles manager
         icon: https://www.bazarr.media/assets/img/logo.png
         url: https://bazarr.home/
 
-  - name: Anime Movies / Anime TV Shows Meda Managers & Tools
-    icon: fas fa-cloud-download
+  - name: Anime
+    icon: fas fa-tv
     displayData:
       sortBy: alphabetical
     items:
-      - title: Radarr (Anime)
+      - title: Radarr
         description: Radarr for Anime Movies
         icon: https://wiki.servarr.com/assets/radarr/logos/128.png
         url: https://radarr-anime.home/
-      - title: Sonarr (Anime)
+      - title: Sonarr
         description: Sonarr for Anime Shows
         icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
         url: https://sonarr-anime.home/
-      - title: Bazarr (Anime)
+      - title: Bazarr
         description: Subtitles manager
         icon: https://www.bazarr.media/assets/img/logo.png
         url: https://bazarr-anime.home/
 
-  - name: Documentaries Movies / Documentaries TV Shows Meda Managers & Tools
-    icon: fas fa-cloud-download
+  - name: Documentaries
+    icon: fas fa-crow
     displayData:
       sortBy: alphabetical
     items:
-      - title: Radarr (Documentaries)
+      - title: Radarr
         description: Radarr for TV Documentaries
         icon: https://wiki.servarr.com/assets/radarr/logos/128.png
         url: https://radarr-documentaries.home/
-      - title: Sonarr (Documentaries)
+      - title: Sonarr
         description: Sonarr for Documentaries
         icon: https://wiki.servarr.com/assets/sonarr/logos/128.png
         url: https://sonarr-documentaries.home/
-      - title: Bazarr (Documentaries)
+      - title: Bazarr
         description: Subtitles manager
         icon: https://www.bazarr.media/assets/img/logo.png
         url: https://bazarr-documentaries.home/
 
-  - name: Other Media Managers & Tools
+  - name: Media Managers & Tools
     icon: fas fa-cloud-download
     displayData:
       sortBy: alphabetical
