@@ -1,0 +1,80 @@
+version: '3.9'
+
+networks:
+  traefik-public:
+    external: true
+
+volumes:
+  traefik:
+    name: traefik
+
+services:
+  traefik:
+    image: docker.io/traefik:v2.5
+    restart: unless-stopped
+    logging:
+      driver: local
+    networks:
+      - public
+      - internal
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+      - traefik:/acme
+    environment:
+      CLOUDFLARE_EMAIL: ${CF_EMAIL}
+      CLOUDFLARE_API_KEY: ${CF_TOKEN}
+    command:
+      # Disable certain settings
+      - --global.checkNewVersion=false
+      - --global.sendAnonymousUsage=false
+      # Enable logging
+      - --log=true
+      - --log.level=WARN
+      - --accessLog=true
+      # Enable API & Dashboard
+      - --api=true
+      - --api.dashboard=true
+      # Configure Docker provider
+      - --providers.docker=true
+      - --providers.docker.swarmMode=true
+      - --providers.docker.exposedbydefault=false
+      # Configure entrypoints (HTTP & HTTPS)
+      - --entrypoints.http.address=:80
+      - --entrypoints.https.address=:443
+      - --entryPoints.traefik.address=:8080
+      # Set up the TLS configuration for HTTPS
+      - --entrypoints.https.http.tls.certresolver=letsencrypt
+      - --entrypoints.https.http.tls.domains[0].main=$DOMAIN
+      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN
+      # Configure LetsEncrypt
+      - --certificatesResolvers.letsencrypt.acme.email=${CF_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesResolvers.letsencrypt.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.letsencrypt.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.letsencrypt.acme.dnsChallenge.delayBeforeCheck=90
+      - --certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == nuc-1
+      labels:
+        traefik.enable: 'true'
+        traefik.docker.network: public
+        # HTTP-to-HTTPS Redirect
+        traefik.http.routers.http_catchall.rule: HostRegexp(`{any:.+}`)
+        traefik.http.routers.http_catchall.entrypoints: http
+        traefik.http.routers.http_catchall.middlewares: https_redirect
+        # Traefik Dashboard
+        traefik.http.routers.traefik.rule: Host(`${TRAEFIK_DOMAIN}`)
+        traefik.http.routers.traefik.service: api@internal
+        # HTTP Routers
+        traefik.http.routers.traefik.entrypoints: https
+        traefik.http.routers.traefik.tls: 'true'
+        traefik.http.routers.traefik.tls.certresolver: letsencrypt
+        # Middlewares
+        traefik.http.middlewares.https_redirect.redirectscheme.scheme: https
+        traefik.http.middlewares.https_redirect.redirectscheme.permanent: 'true'

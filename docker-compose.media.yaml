@@ -5,10 +5,10 @@ networks:
     name: homelab
   internal:
     name: internal
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 192.168.150.0/24
+    # driver: bridge
+    # ipam:
+    #   config:
+    #     - subnet: 192.168.150.0/24
   public:
     name: public
 
@@ -19,10 +19,7 @@ volumes:
 services:
   bazarr:
     image: lscr.io/linuxserver/bazarr
-    container_name: bazarr
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -55,10 +52,7 @@ services:
 
   bazarr-anime:
     image: lscr.io/linuxserver/bazarr
-    container_name: bazarr-anime
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -91,10 +85,7 @@ services:
 
   bazarr-documentaries:
     image: lscr.io/linuxserver/bazarr
-    container_name: bazarr-documentaries
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -127,10 +118,7 @@ services:
 
   bitwarden:
     image: docker.io/vaultwarden/server
-    container_name: bitwarden
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -164,7 +152,6 @@ services:
 
   # cf-companion:
   #   image: docker.io/tiredofit/traefik-cloudflare-companion
-  #   container_name: cf-companion
   #   restart: unless-stopped
   #   security_opt:
   #     - no-new-privileges:true
@@ -187,43 +174,41 @@ services:
   #     - DOMAIN1_ZONE_ID=${CF_ZONE_ID}
   #     - DOMAIN1_PROXIED=FALSE
 
-  # dashy:
-  #   image: docker.io/lissy93/dashy
-  #   container_name: dashy
-  #   restart: unless-stopped
-  #   security_opt:
-  #     - no-new-privileges:true
-  #   logging:
-  #     driver: local
-  #   networks:
-  #     - internal
-  #   environment:
-  #     - TZ
-  #     - PUID
-  #     - PGID
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - ${DASHY_CONF}:/app/public/conf.yml
-  #   deploy:
-  #     placement:
-  #       constraints:
-  #         - node.hostname == nuc-1
-  #     labels:
-  #       traefik.enable: 'true'
-  #       # HTTP Routers
-  #       traefik.http.routers.dashy.entrypoints: https
-  #       traefik.http.routers.dashy.rule: Host(`${DASHY_DOMAIN}`)
-  #       traefik.http.routers.dashy.tls: 'true'
-  #       traefik.http.routers.dashy.tls.certresolver: letsencrypt
-  #       # Services
-  #       traefik.http.routers.dashy.service: dashy
-  #       traefik.http.services.dashy.loadbalancer.server.port: 80
-  #       # Watchtower
-  #       com.centurylinklabs.watchtower.enable: 'true'
+  dashy:
+    image: docker.io/lissy93/dashy
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: local
+    networks:
+      - internal
+    environment:
+      - TZ
+      - PUID
+      - PGID
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${DASHY_CONF}:/app/public/conf.yml
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == nuc-1
+      labels:
+        traefik.enable: 'true'
+        # HTTP Routers
+        traefik.http.routers.dashy.entrypoints: https
+        traefik.http.routers.dashy.rule: Host(`${DASHY_DOMAIN}`)
+        traefik.http.routers.dashy.tls: 'true'
+        traefik.http.routers.dashy.tls.certresolver: letsencrypt
+        # Services
+        traefik.http.routers.dashy.service: dashy
+        traefik.http.services.dashy.loadbalancer.server.port: 80
+        # Watchtower
+        com.centurylinklabs.watchtower.enable: 'true'
 
   # dockergc:
   #   image: docker.io/clockworksoul/docker-gc-cron
-  #   container_name: docker-gc
   #   logging:
   #     driver: local
   #   networks:
@@ -241,10 +226,7 @@ services:
 
   freshrss:
     image: lscr.io/linuxserver/freshrss
-    container_name: freshrss
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -275,10 +257,7 @@ services:
 
   overseerr:
     image: lscr.io/linuxserver/overseerr
-    container_name: overseerr
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -309,10 +288,7 @@ services:
 
   pasta:
     image: docker.io/cglatot/pasta
-    container_name: pasta
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -336,10 +312,7 @@ services:
 
   plex:
     image: lscr.io/linuxserver/plex
-    container_name: plex
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     networks:
       - internal
     ports:
@@ -385,7 +358,6 @@ services:
 
   # plex-trakt-sync:
   #   image: ghcr.io/taxel/plextraktsync
-  #   container_name: plex-trakt-sync
   #   restart: unless-stopped
   #   security_opt:
   #     - no-new-privileges:true
@@ -404,10 +376,7 @@ services:
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:nightly
-    container_name: prowlarr
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -438,10 +407,7 @@ services:
 
   radarr:
     image: lscr.io/linuxserver/radarr
-    container_name: radarr
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -474,10 +440,7 @@ services:
 
   radarr-anime:
     image: lscr.io/linuxserver/radarr
-    container_name: radarr-anime
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -510,10 +473,7 @@ services:
 
   radarr-documentaries:
     image: lscr.io/linuxserver/radarr
-    container_name: radarr-documentaries
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -546,10 +506,7 @@ services:
 
   readarr:
     image: lscr.io/linuxserver/readarr:nightly
-    container_name: readarr
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -582,10 +539,7 @@ services:
 
   sabnzbd:
     image: lscr.io/linuxserver/sabnzbd
-    container_name: sabnzbd
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -618,10 +572,7 @@ services:
 
   sonarr:
     image: lscr.io/linuxserver/sonarr
-    container_name: sonarr
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -654,10 +605,7 @@ services:
 
   sonarr-anime:
     image: lscr.io/linuxserver/sonarr
-    container_name: sonarr-anime
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -690,10 +638,7 @@ services:
 
   sonarr-documentaries:
     image: lscr.io/linuxserver/sonarr
-    container_name: sonarr-documentaries
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -726,10 +671,7 @@ services:
 
   tautulli:
     image: lscr.io/linuxserver/tautulli
-    container_name: tautulli
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -760,10 +702,7 @@ services:
 
   tdarr:
     image: docker.io/haveagitgat/tdarr
-    container_name: tdarr
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -799,10 +738,7 @@ services:
 
   tdarr-node:
     image: docker.io/haveagitgat/tdarr_node
-    container_name: tdarr-node
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -829,10 +765,7 @@ services:
 
   traefik:
     image: docker.io/traefik:v2.5
-    container_name: traefik
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -861,7 +794,7 @@ services:
       - --api.dashboard=true
       # Configure Docker provider
       - --providers.docker=true
-      - --providers.docker.swarmMode=false
+      - --providers.docker.swarmMode=true
       - --providers.docker.exposedbydefault=false
       # Configure entrypoints (HTTP & HTTPS)
       - --entrypoints.http.address=:80
@@ -881,7 +814,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.hostname == nuc-1
+          - node.hostname == nas
       labels:
         traefik.enable: 'true'
         traefik.docker.network: public
@@ -900,61 +833,57 @@ services:
         traefik.http.middlewares.https_redirect.redirectscheme.scheme: https
         traefik.http.middlewares.https_redirect.redirectscheme.permanent: 'true'
 
-  transmission:
-    image: docker.io/haugene/transmission-openvpn
-    container_name: transmission
-    restart: unless-stopped
-    logging:
-      driver: local
-    dns:
-      - 1.1.1.1
-      - 1.0.0.1
-    networks:
-      - internal
-    cap_add:
-      - NET_ADMIN
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${TRANSMISSION_CONFIG}:/config
-      - ${DOWNLOADS}:/downloads
-    environment:
-      - TZ
-      - PUID
-      - PGID
-      - UMASK_SET="18"
-      - OPENVPN_PROVIDER
-      - OPENVPN_CONFIG
-      - OPENVPN_USERNAME
-      - OPENVPN_PASSWORD
-      - CREATE_TUN_DEVICE="true"
-      - TRANSMISSION_UTP_ENABLED="false"
-      - TRANSMISSION_DOWNLOADS=/downloads
-      - TRANSMISSION_DOWNLOADS_INCOMPLETE=/incomplete-downloads
-      - TRANSMISSION_INCOMPLETE_DIR_ENABLED="true"
-      - TRANSMISSION_WEB_UI="transmission-web-control"
-    deploy:
-      placement:
-        constraints:
-          - node.hostname == nuc-1
-      labels:
-        traefik.enable: 'true'
-        # HTTP Routers
-        traefik.http.routers.transmission.entrypoints: https
-        traefik.http.routers.transmission.rule: Host(`${TRANSMISSION_DOMAIN}`)
-        traefik.http.routers.transmission.tls: 'true'
-        traefik.http.routers.transmission.tls.certresolver: letsencrypt
-        # Services
-        traefik.http.routers.transmission.service: transmission
-        traefik.http.services.transmission.loadbalancer.server.port: 9091
-        # Watchtower
-        com.centurylinklabs.watchtower.enable: 'true'
+  # transmission:
+  #   image: docker.io/haugene/transmission-openvpn
+  #   restart: unless-stopped
+  #   logging:
+  #     driver: local
+  #   dns:
+  #     - 1.1.1.1
+  #     - 1.0.0.1
+  #   networks:
+  #     - internal
+  #   cap_add:
+  #     - NET_ADMIN
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - ${TRANSMISSION_CONFIG}:/config
+  #     - ${DOWNLOADS}:/downloads
+  #   environment:
+  #     - TZ
+  #     - PUID
+  #     - PGID
+  #     - UMASK_SET="18"
+  #     - OPENVPN_PROVIDER
+  #     - OPENVPN_CONFIG
+  #     - OPENVPN_USERNAME
+  #     - OPENVPN_PASSWORD
+  #     - CREATE_TUN_DEVICE="true"
+  #     - TRANSMISSION_UTP_ENABLED="false"
+  #     - TRANSMISSION_DOWNLOADS=/downloads
+  #     - TRANSMISSION_DOWNLOADS_INCOMPLETE=/incomplete-downloads
+  #     - TRANSMISSION_INCOMPLETE_DIR_ENABLED="true"
+  #     - TRANSMISSION_WEB_UI="transmission-web-control"
+  #   deploy:
+  #     placement:
+  #       constraints:
+  #         - node.hostname == nuc-1
+  #     labels:
+  #       traefik.enable: 'true'
+  #       # HTTP Routers
+  #       traefik.http.routers.transmission.entrypoints: https
+  #       traefik.http.routers.transmission.rule: Host(`${TRANSMISSION_DOMAIN}`)
+  #       traefik.http.routers.transmission.tls: 'true'
+  #       traefik.http.routers.transmission.tls.certresolver: letsencrypt
+  #       # Services
+  #       traefik.http.routers.transmission.service: transmission
+  #       traefik.http.services.transmission.loadbalancer.server.port: 9091
+  #       # Watchtower
+  #       com.centurylinklabs.watchtower.enable: 'true'
 
   tubesync:
     image: ghcr.io/meeb/tubesync
-    container_name: tubesync
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     logging:
       driver: local
     networks:
@@ -986,7 +915,6 @@ services:
 
   # watchtower:
   #   image: docker.io/containrrr/watchtower
-  #   container_name: watchtower
   #   restart: unless-stopped
   #   security_opt:
   #     - no-new-privileges:true
