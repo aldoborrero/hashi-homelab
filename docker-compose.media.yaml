@@ -814,7 +814,7 @@ services:
     deploy:
       placement:
         constraints:
-          - node.hostname == nas
+          - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
         traefik.docker.network: public
