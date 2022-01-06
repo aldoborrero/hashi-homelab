@@ -26,8 +26,8 @@
   i18n.defaultLocale = "en_US.UTF-8";
 
   system = {
-    stateVersion = "21.05";
+    stateVersion = "21.11";
     autoUpgrade.enable = true;
-    autoUpgrade.allowReboot = true;
+    autoUpgrade.allowReboot = false;
   };
 }

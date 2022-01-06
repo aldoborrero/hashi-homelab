@@ -5,16 +5,8 @@ networks:
     name: homelab
   internal:
     name: internal
-    # driver: bridge
-    # ipam:
-    #   config:
-    #     - subnet: 192.168.150.0/24
-  public:
-    name: public
-
-volumes:
-  traefik:
-    name: traefik
+  traefik-public:
+    external: true
 
 services:
   bazarr:
@@ -23,7 +15,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -39,6 +33,7 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
         traefik.http.routers.bazarr.entrypoints: https
         traefik.http.routers.bazarr.rule: Host(`${BAZARR_DOMAIN}`)
@@ -56,14 +51,16 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${BAZARR_CONFIG}:/config
+      - ${BAZARR_ANIME_CONFIG}:/config
       - ${DOWNLOADS}:/downloads
       - ${MEDIA}:/media
     deploy:
@@ -72,6 +69,7 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
         traefik.http.routers.bazarr-anime.entrypoints: https
         traefik.http.routers.bazarr-anime.rule: Host(`${BAZARR_ANIME_DOMAIN}`)
@@ -89,14 +87,16 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
       - PGID
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${BAZARR_CONFIG}:/config
+      - ${BAZARR_DOCUMENTARIES_CONFIG}:/config
       - ${DOWNLOADS}:/downloads
       - ${MEDIA}:/media
     deploy:
@@ -105,8 +105,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.bazarr-documentaries.entrypoints: https
+        traefik.http.routers.bazarr-documentaries.entrypoints: http,https
         traefik.http.routers.bazarr-documentaries.rule: Host(`${BAZARR_DOCUMENTARIES_DOMAIN}`)
         traefik.http.routers.bazarr-documentaries.tls: 'true'
         traefik.http.routers.bazarr-documentaries.tls.certresolver: letsencrypt
@@ -122,7 +123,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${BITWARDEN_CONF}:/data
@@ -139,8 +142,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.bitwarden.entrypoints: https
+        traefik.http.routers.bitwarden.entrypoints: http,https
         traefik.http.routers.bitwarden.rule: Host(`${BITWARDEN_DOMAIN}`)
         traefik.http.routers.bitwarden.tls: 'true'
         traefik.http.routers.bitwarden.tls.certresolver: letsencrypt
@@ -182,7 +186,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -196,8 +202,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.dashy.entrypoints: https
+        traefik.http.routers.dashy.entrypoints: http,https
         traefik.http.routers.dashy.rule: Host(`${DASHY_DOMAIN}`)
         traefik.http.routers.dashy.tls: 'true'
         traefik.http.routers.dashy.tls.certresolver: letsencrypt
@@ -207,22 +214,29 @@ services:
         # Watchtower
         com.centurylinklabs.watchtower.enable: 'true'
 
-  # dockergc:
-  #   image: docker.io/clockworksoul/docker-gc-cron
-  #   logging:
-  #     driver: local
-  #   networks:
-  #     - internal
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #     - /etc/localtime:/etc/localtime:ro
-  #   environment:
-  #     CRON: 30 4 * * * # https://cron.help/#30_4_*_*_*
-  #     FORCE_IMAGE_REMOVAL: 1
-  #     FORCE_CONTAINER_REMOVAL: 0
-  #     GRACE_PERIOD_SECONDS: 604800 # 7 days
-  #     DRY_RUN: 0
-  #     CLEAN_UP_VOLUMES: 1
+  dockergc:
+    image: docker.io/clockworksoul/docker-gc-cron
+    logging:
+      driver: local
+    networks:
+      - default
+      - internal
+      - traefik-public
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      CRON: 30 4 * * * # https://cron.help/#30_4_*_*_*
+      FORCE_IMAGE_REMOVAL: 1
+      FORCE_CONTAINER_REMOVAL: 0
+      GRACE_PERIOD_SECONDS: 604800 # 7 days
+      DRY_RUN: 0
+      CLEAN_UP_VOLUMES: 1
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        max_replicas_per_node: 1
 
   freshrss:
     image: lscr.io/linuxserver/freshrss
@@ -230,7 +244,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -244,8 +260,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.freshrss.entrypoints: https
+        traefik.http.routers.freshrss.entrypoints: http,https
         traefik.http.routers.freshrss.rule: Host(`${FRESHRSS_DOMAIN}`)
         traefik.http.routers.freshrss.tls: 'true'
         traefik.http.routers.freshrss.tls.certresolver: letsencrypt
@@ -261,7 +278,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -275,8 +294,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.overseerr.entrypoints: https
+        traefik.http.routers.overseerr.entrypoints: http,https
         traefik.http.routers.overseerr.rule: Host(`${OVERSEERR_DOMAIN}`)
         traefik.http.routers.overseerr.tls: 'true'
         traefik.http.routers.overseerr.tls.certresolver: letsencrypt
@@ -292,15 +312,18 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     deploy:
       placement:
         constraints:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.pasta.entrypoints: https
+        traefik.http.routers.pasta.entrypoints: http,https
         traefik.http.routers.pasta.rule: Host(`${PASTA_DOMAIN}`)
         traefik.http.routers.pasta.tls: 'true'
         traefik.http.routers.pasta.tls.certresolver: letsencrypt
@@ -314,16 +337,38 @@ services:
     image: lscr.io/linuxserver/plex
     restart: unless-stopped
     networks:
+      - default
       - internal
+      - traefik-public
     ports:
-      - '32400:32400' # (for access to the Plex Media Server)
-      - '3005:3005' # (for controlling Plex Home Theater via Plex Companion)
-      - '8324:8324' # (for controlling Plex for Roku via Plex Companion)
-      - '32410:32410/udp' # (for current GDM network discovery)
-      - '32412:32412/udp' # (for current GDM network discovery)
-      - '32413:32413/udp' # (for current GDM network discovery)
-      - '32414:32414/udp' # (for current GDM network discovery)
-      - '32469:32469' # (for access to the Plex DLNA Server)
+      - target: 32400 # (for access to the Plex Media Server)
+        published: 32400
+        mode: host
+      - target: 3005 # (for controlling Plex Home Theater via Plex Companion)
+        published: 3005
+        mode: host
+      - target: 8324 # (for controlling Plex for Roku via Plex Companion)
+        published: 8324
+        mode: host
+      - target: 32410 # (for current GDM network discovery)
+        published: 32410
+        protocol: udp
+        mode: host
+      - target: 32412 # (for current GDM network discovery)
+        published: 32412
+        protocol: udp
+        mode: host
+      - target: 32413 # (for current GDM network discovery)
+        published: 32413
+        protocol: udp
+        mode: host
+      - target: 32414 # (for current GDM network discovery)
+        published: 32414
+        protocol: udp
+        mode: host
+      - target: 32469 # (for access to the Plex DLNA Server)
+        published: 32469
+        mode: host
     logging:
       driver: local
     environment:
@@ -338,15 +383,16 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ${PLEX_CONF}:/config
       - ${PLEX_MEDIA}:/media
-      - ${PLEX_TRANSCODE}:/transcode
+      # - ${PLEX_TRANSCODE}:/transcode
     deploy:
       placement:
         constraints:
           - node.hostname == nas
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.plex.entrypoints: https
+        traefik.http.routers.plex.entrypoints: http,https
         traefik.http.routers.plex.rule: Host(`${PLEX_DOMAIN}`)
         traefik.http.routers.plex.tls: 'true'
         # Services
@@ -380,7 +426,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -394,8 +442,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.prowlarr.entrypoints: https
+        traefik.http.routers.prowlarr.entrypoints: http,https
         traefik.http.routers.prowlarr.rule: Host(`${PROWLARR_DOMAIN}`)
         traefik.http.routers.prowlarr.tls: 'true'
         traefik.http.routers.prowlarr.tls.certresolver: letsencrypt
@@ -411,7 +460,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -427,8 +478,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.radarr.entrypoints: https
+        traefik.http.routers.radarr.entrypoints: http,https
         traefik.http.routers.radarr.rule: Host(`${RADARR_DOMAIN}`)
         traefik.http.routers.radarr.tls: 'true'
         traefik.http.routers.radarr.tls.certresolver: letsencrypt
@@ -444,7 +496,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -460,8 +514,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.radarr-anime.entrypoints: https
+        traefik.http.routers.radarr-anime.entrypoints: http,https
         traefik.http.routers.radarr-anime.rule: Host(`${RADARR_ANIME_DOMAIN}`)
         traefik.http.routers.radarr-anime.tls: 'true'
         traefik.http.routers.radarr-anime.tls.certresolver: letsencrypt
@@ -477,7 +532,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -493,8 +550,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.radarr-documentaries.entrypoints: https
+        traefik.http.routers.radarr-documentaries.entrypoints: http,https
         traefik.http.routers.radarr-documentaries.rule: Host(`${RADARR_DOCUMENTARIES_DOMAIN}`)
         traefik.http.routers.radarr-documentaries.tls: 'true'
         traefik.http.routers.radarr-documentaries.tls.certresolver: letsencrypt
@@ -510,7 +568,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -526,8 +586,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.readarr.entrypoints: https
+        traefik.http.routers.readarr.entrypoints: http,https
         traefik.http.routers.readarr.rule: Host(`${READARR_DOMAIN}`)
         traefik.http.routers.readarr.tls: 'true'
         traefik.http.routers.readarr.tls.certresolver: letsencrypt
@@ -543,7 +604,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -556,11 +619,12 @@ services:
     deploy:
       placement:
         constraints:
-          - node.hostname == nuc-1
+          - node.hostname == nas
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.sabnzbd.entrypoints: https
+        traefik.http.routers.sabnzbd.entrypoints: http,https
         traefik.http.routers.sabnzbd.rule: Host(`${SABNZBD_DOMAIN}`)
         traefik.http.routers.sabnzbd.tls: 'true'
         traefik.http.routers.sabnzbd.tls.certresolver: letsencrypt
@@ -576,7 +640,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -592,8 +658,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.sonarr.entrypoints: https
+        traefik.http.routers.sonarr.entrypoints: http,https
         traefik.http.routers.sonarr.rule: Host(`${SONARR_DOMAIN}`)
         traefik.http.routers.sonarr.tls: 'true'
         traefik.http.routers.sonarr.tls.certresolver: letsencrypt
@@ -609,7 +676,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -625,8 +694,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.sonarr-anime.entrypoints: https
+        traefik.http.routers.sonarr-anime.entrypoints: http,https
         traefik.http.routers.sonarr-anime.rule: Host(`${SONARR_ANIME_DOMAIN}`)
         traefik.http.routers.sonarr-anime.tls: 'true'
         traefik.http.routers.sonarr-anime.tls.certresolver: letsencrypt
@@ -642,7 +712,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -658,8 +730,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.sonarr-documentaries.entrypoints: https
+        traefik.http.routers.sonarr-documentaries.entrypoints: http,https
         traefik.http.routers.sonarr-documentaries.rule: Host(`${SONARR_DOCUMENTARIES_DOMAIN}`)
         traefik.http.routers.sonarr-documentaries.tls: 'true'
         traefik.http.routers.sonarr-documentaries.tls.certresolver: letsencrypt
@@ -675,7 +748,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -689,8 +764,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.tautulli.entrypoints: https
+        traefik.http.routers.tautulli.entrypoints: http,https
         traefik.http.routers.tautulli.rule: Host(`${TAUTULLI_DOMAIN}`)
         traefik.http.routers.tautulli.tls: 'true'
         traefik.http.routers.tautulli.tls.certresolver: letsencrypt
@@ -706,7 +782,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -725,8 +803,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.tdarr.entrypoints: https
+        traefik.http.routers.tdarr.entrypoints: http,https
         traefik.http.routers.tdarr.rule: Host(`${TDARR_DOMAIN}`)
         traefik.http.routers.tdarr.tls: 'true'
         traefik.http.routers.tdarr.tls.certresolver: letsencrypt
@@ -742,7 +821,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     environment:
       - TZ
       - PUID
@@ -762,76 +843,6 @@ services:
           - node.hostname == nuc-1
       labels:
         com.centurylinklabs.watchtower.enable: 'true'
-
-  traefik:
-    image: docker.io/traefik:v2.5
-    restart: unless-stopped
-    logging:
-      driver: local
-    networks:
-      - public
-      - internal
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/localtime:/etc/localtime:ro
-      - traefik:/acme
-    environment:
-      CLOUDFLARE_EMAIL: ${CF_EMAIL}
-      CLOUDFLARE_API_KEY: ${CF_TOKEN}
-    command:
-      # Disable certain settings
-      - --global.checkNewVersion=false
-      - --global.sendAnonymousUsage=false
-      # Enable logging
-      - --log=true
-      - --log.level=WARN
-      - --accessLog=true
-      # Enable API & Dashboard
-      - --api=true
-      - --api.dashboard=true
-      # Configure Docker provider
-      - --providers.docker=true
-      - --providers.docker.swarmMode=true
-      - --providers.docker.exposedbydefault=false
-      # Configure entrypoints (HTTP & HTTPS)
-      - --entrypoints.http.address=:80
-      - --entrypoints.https.address=:443
-      - --entryPoints.traefik.address=:8080
-      # Set up the TLS configuration for HTTPS
-      - --entrypoints.https.http.tls.certresolver=letsencrypt
-      - --entrypoints.https.http.tls.domains[0].main=$DOMAIN
-      - --entrypoints.https.http.tls.domains[0].sans=*.$DOMAIN
-      # Configure LetsEncrypt
-      - --certificatesResolvers.letsencrypt.acme.email=${CF_EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
-      - --certificatesResolvers.letsencrypt.acme.dnsChallenge.provider=cloudflare
-      - --certificatesResolvers.letsencrypt.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
-      - --certificatesResolvers.letsencrypt.acme.dnsChallenge.delayBeforeCheck=90
-      - --certificatesresolvers.letsencrypt.acme.storage=/acme/acme.json
-    deploy:
-      placement:
-        constraints:
-          - node.hostname == nuc-1
-      labels:
-        traefik.enable: 'true'
-        traefik.docker.network: public
-        # HTTP-to-HTTPS Redirect
-        traefik.http.routers.http_catchall.rule: HostRegexp(`{any:.+}`)
-        traefik.http.routers.http_catchall.entrypoints: http
-        traefik.http.routers.http_catchall.middlewares: https_redirect
-        # Traefik Dashboard
-        traefik.http.routers.traefik.rule: Host(`${TRAEFIK_DOMAIN}`)
-        traefik.http.routers.traefik.service: api@internal
-        # HTTP Routers
-        traefik.http.routers.traefik.entrypoints: https
-        traefik.http.routers.traefik.tls: 'true'
-        traefik.http.routers.traefik.tls.certresolver: letsencrypt
-        # Middlewares
-        traefik.http.middlewares.https_redirect.redirectscheme.scheme: https
-        traefik.http.middlewares.https_redirect.redirectscheme.permanent: 'true'
 
   # transmission:
   #   image: docker.io/haugene/transmission-openvpn
@@ -870,8 +881,9 @@ services:
   #         - node.hostname == nuc-1
   #     labels:
   #       traefik.enable: 'true'
+  #       traefik.constraint-label: traefik-public
   #       # HTTP Routers
-  #       traefik.http.routers.transmission.entrypoints: https
+  #       traefik.http.routers.transmission.entrypoints: http,https
   #       traefik.http.routers.transmission.rule: Host(`${TRANSMISSION_DOMAIN}`)
   #       traefik.http.routers.transmission.tls: 'true'
   #       traefik.http.routers.transmission.tls.certresolver: letsencrypt
@@ -887,7 +899,9 @@ services:
     logging:
       driver: local
     networks:
+      - default
       - internal
+      - traefik-public
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${TUBESYNC_CONFIG}:/config
@@ -902,8 +916,9 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
+        traefik.constraint-label: traefik-public
         # HTTP Routers
-        traefik.http.routers.tubesync.entrypoints: https
+        traefik.http.routers.tubesync.entrypoints: http,https
         traefik.http.routers.tubesync.rule: Host(`${TUBESYNC_DOMAIN}`)
         traefik.http.routers.tubesync.tls: 'true'
         traefik.http.routers.tubesync.tls.certresolver: letsencrypt

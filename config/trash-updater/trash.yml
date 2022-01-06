@@ -34,11 +34,11 @@ radarr:
     delete_old_custom_formats: true
     custom_formats:
       - names:
-        - BR-DISK
-        - EVO (no WEB-DL)
-        - LQ
-        - x265 (720/1080p)
-        - 3D
+          - BR-DISK
+          - EVO (no WEB-DL)
+          - LQ
+          - x265 (720/1080p)
+          - 3D
   - base_url: https://radarr-anime.home/
     api_key: eba22f7b775e4742b72824eb8e522318
     quality_definition:
@@ -46,11 +46,11 @@ radarr:
     delete_old_custom_formats: true
     custom_formats:
       - names:
-        - BR-DISK
-        - EVO (no WEB-DL)
-        - LQ
-        - x265 (720/1080p)
-        - 3D
+          - BR-DISK
+          - EVO (no WEB-DL)
+          - LQ
+          - x265 (720/1080p)
+          - 3D
   - base_url: https://radarr-documentaries.home/
     api_key: 3b0478f2cfc748bb88e2fdca75fb2f38
     quality_definition:
@@ -58,8 +58,8 @@ radarr:
     delete_old_custom_formats: true
     custom_formats:
       - names:
-        - BR-DISK
-        - EVO (no WEB-DL)
-        - LQ
-        - x265 (720/1080p)
-        - 3D
+          - BR-DISK
+          - EVO (no WEB-DL)
+          - LQ
+          - x265 (720/1080p)
+          - 3D

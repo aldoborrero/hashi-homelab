@@ -5,8 +5,8 @@ networks:
     external: true
 
 volumes:
-  traefik:
-    name: traefik
+  traefik-certificates:
+    name: traefik-certificates
 
 services:
   traefik:
@@ -15,15 +15,18 @@ services:
     logging:
       driver: local
     networks:
-      - public
-      - internal
+      - traefik-public
     ports:
-      - 80:80
-      - 443:443
+      - target: 80
+        published: 80
+        mode: host
+      - target: 443
+        published: 443
+        mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /etc/localtime:/etc/localtime:ro
-      - traefik:/acme
+      - 'traefik-certificates:/acme'
     environment:
       CLOUDFLARE_EMAIL: ${CF_EMAIL}
       CLOUDFLARE_API_KEY: ${CF_TOKEN}
@@ -42,6 +45,7 @@ services:
       - --providers.docker=true
       - --providers.docker.swarmMode=true
       - --providers.docker.exposedbydefault=false
+      - --providers.docker.constraints=Label(`traefik.constraint-label`, `traefik-public`)
       # Configure entrypoints (HTTP & HTTPS)
       - --entrypoints.http.address=:80
       - --entrypoints.https.address=:443
@@ -63,7 +67,7 @@ services:
           - node.hostname == nuc-1
       labels:
         traefik.enable: 'true'
-        traefik.docker.network: public
+        traefik.docker.network: traefik-public
         # HTTP-to-HTTPS Redirect
         traefik.http.routers.http_catchall.rule: HostRegexp(`{any:.+}`)
         traefik.http.routers.http_catchall.entrypoints: http
